@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">小说书单工坊</string>
+    <string name="home">首页</string>
+    <string name="home_1">还没有书单呢~</string>
+    <string name="home_sfacg">菠萝包轻小说</string>
+    <string name="home_ciweimao">刺猬猫</string>
+    <string name="option_sf">爬虫配置</string>
+    <string name="option_sf_task_name">任务名称</string>
+    <string name="option_sf_1">待爬取标签</string>
+    <string name="option_sf_2">选取页码</string>
+    <string name="option_sf_3">vvv 点击查看更多 vvv</string>
+    <string name="option_sf_4">起始: </string>
+    <string name="option_sf_5">  尾页: </string>
+    <string name="option_sf_6">(最大页码%1$d)</string>
+    <string name="option_sf_7">作品状态</string>
+    <string name="option_sf_8">作品属性</string>
+    <string name="option_sf_9">更新时间</string>
+    <string name="option_sf_10">作品字数</string>
+    <string name="option_sf_11">下一步</string>
+    <string name="option_sf_12">收藏配置</string>
+    <string name="option_sf_13">任务名称或标签不能为空</string>
+    <string name="option_sf_14">配置已保存</string>
+    <string name="option_sf_15">作品类型</string>
+    <string name="crawler_sf">运行</string>
+    <string name="crawler_sf_1">开始爬取</string>
+    <string name="crawler_sf_2">分享</string>
+    <string name="mark_1">配置收藏</string>
+    <string name="history_1">历史记录</string>
+</resources>
