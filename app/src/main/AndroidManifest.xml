@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
 
     <application
         android:name=".NovelApplication"
@@ -16,7 +18,7 @@
         tools:targetApi="31">
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="akabc.crawler.novel.MainActivity"
+            android:authorities="akabc.crawler.novel.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

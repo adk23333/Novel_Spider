@@ -6,6 +6,8 @@ import akabc.crawler.novel.ui.page.record.HistoryScreen
 import akabc.crawler.novel.ui.page.record.MarkScreen
 import akabc.crawler.novel.ui.page.sfacg.OptionSF
 import akabc.crawler.novel.ui.theme.Novel_CrawlerTheme
+import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,6 +24,15 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            this.requestPermissions(
+                arrayOf(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ), 1
+            )
+        }
+
         setContent {
             Novel_CrawlerTheme {
                 MainNavHost()
@@ -61,10 +72,16 @@ fun MainNavHost(
                 { navController.navigate(Crawler) }) { navController.popBackStack() }
         }
         composable(HISTORY) {
-            HistoryScreen(viewModel, { navController.popBackStack() }, { navController.navigate(Crawler) })
+            HistoryScreen(
+                viewModel,
+                { navController.popBackStack() },
+                { navController.navigate(Crawler) })
         }
         composable(MARK) {
-            MarkScreen(viewModel, { navController.popBackStack() },{ navController.navigate(Crawler) })
+            MarkScreen(
+                viewModel,
+                { navController.popBackStack() },
+                { navController.navigate(Crawler) })
         }
         composable(Crawler) {
             CrawlerScreen(

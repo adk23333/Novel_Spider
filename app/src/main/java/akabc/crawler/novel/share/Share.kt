@@ -15,19 +15,21 @@ import java.io.File
 
 const val DownloadPath = "/storage/emulated/0/Download"
 
-fun writeToExcelAndShare(task: Task, context: Context, novels: List<DbSfNovel>){
+fun writeToExcelAndShare(task: Task, context: Context, novels: List<DbSfNovel>) {
     val fileName = "ID-${task.base.id}-${task.base.name}.xlsx"
-    val file = File(DownloadPath, fileName)
-    if(!file.exists()){
+    var file = File(DownloadPath, "/${context.packageName}")
+    file.mkdir()
+    file = File("$DownloadPath/${context.packageName}", fileName)
+    if (!file.exists()) {
         CoroutineScope(Dispatchers.Main).launch {
             Toast.makeText(context, "正在导出文件到Download文件夹", Toast.LENGTH_SHORT).show()
         }
-        writeNovelsToExcel(novels, fileName)
+        writeNovelsToExcel(novels, "$DownloadPath/${context.packageName}", fileName)
     }
     shareExcel(context, file)
 }
 
-fun writeNovelsToExcel(novels: List<DbSfNovel>, fileName: String) {
+fun writeNovelsToExcel(novels: List<DbSfNovel>, path: String, fileName: String) {
     workbook {
         sheet {
             row {
@@ -71,20 +73,18 @@ fun writeNovelsToExcel(novels: List<DbSfNovel>, fileName: String) {
                 }
             }
         }
-    }.write("$DownloadPath/$fileName")
+    }.write("$path/$fileName")
 
 }
 
 fun shareExcel(context: Context, file: File) {
     try {
-        val authority = context.packageName + ".MainActivity"
+        val authority = context.packageName + ".fileprovider"
         val uri = FileProvider.getUriForFile(context, authority, file)
-
-        context.startActivity(Intent(Intent.ACTION_SEND).apply {
-            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            setDataAndType(uri, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        })
+        context.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
+            type = "application/vnd.ms-excel"
+            putExtra(Intent.EXTRA_STREAM, uri)
+        }, "分享"))
     } catch (e: Exception) {
         Log.d("share.Share", e.message.toString())
         CoroutineScope(Dispatchers.Main).launch {
