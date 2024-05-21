@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package akabc.crawler.novel.ui.page.record
 
 import akabc.crawler.novel.MainViewModel
@@ -20,8 +18,7 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -78,7 +75,7 @@ fun TaskCard(
                         + "字数：${RequestNovels.CharCount.map[task.base.requestNovels.charCount]}  "
                         + "类型：${RequestNovels.NovelsType.Zh.map[task.base.requestNovels.type]}"
             )
-            Divider()
+            HorizontalDivider()
             Text(
                 "完结：${
                     RequestNovels.OptionStatus.ZhFinish.map[task.base.requestNovels.isfinish]
@@ -94,7 +91,7 @@ fun TaskCard(
                 if (task.notexcludesystagids.isEmpty()) "不限"
                 else task.notexcludesystagids.joinToString { it.tagName }
             }")
-            Divider()
+            HorizontalDivider()
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
                 if (!isMarkScreen) {
                     Button(
