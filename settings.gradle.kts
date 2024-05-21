@@ -1,11 +1,16 @@
 pluginManagement {
     repositories {
-        mavenCentral()
         google()
+        mavenCentral()
         gradlePluginPortal()
     }
 }
-
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
 rootProject.name = "Novel_Crawler"
 include(":app")
-
