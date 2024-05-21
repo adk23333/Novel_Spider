@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <external-path name="akabc.crawler.novel" path="Download/" />
+<paths>
+    <external-path
+        name="sanliy.spider.novel"
+        path="Download/" />
 </paths>

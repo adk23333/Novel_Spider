@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "akabc.crawler.novel"
+    namespace = "sanliy.spider.novel"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "akabc.crawler.novel"
+        applicationId = android.namespace
         minSdk = 28
         targetSdk = 34
         versionCode = 1
