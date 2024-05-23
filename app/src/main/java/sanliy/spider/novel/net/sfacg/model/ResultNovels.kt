@@ -21,7 +21,7 @@ data class ResultNovels(
         val allowDown: Boolean = false,
         val addTime: String = "",
         val isSensitive: Boolean = false,
-        val signStatus: String = SignStatus.VIP,
+        val signStatus: String = SignStatus.VIP.value,
         val categoryId: Int = 0,
         val expand: Expand = Expand(),
     )
@@ -39,9 +39,9 @@ data class ResultNovels(
         val tagName: String = "",
     )
 
-    object SignStatus {
-        const val VIP = "VIP"
-        const val Primary = "普通"
+    enum class SignStatus(val value: String) {
+        VIP("VIP"),
+        Primary("普通");
     }
 }
 

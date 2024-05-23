@@ -15,7 +15,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Novel_Spider"
-        tools:targetApi="31">
+        tools:targetApi="34">
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="sanliy.spider.novel.fileprovider"

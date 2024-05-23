@@ -12,8 +12,8 @@ android {
         applicationId = android.namespace
         minSdk = 28
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -99,6 +99,8 @@ dependencies {
     implementation("androidx.room:room-ktx:${roomVersion}")
     annotationProcessor("androidx.room:room-compiler:${roomVersion}")
     testImplementation("androidx.room:room-testing:${roomVersion}")
+
+    implementation("io.github.evanrupert:excelkt:1.0.2")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

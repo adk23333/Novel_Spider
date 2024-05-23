@@ -64,8 +64,12 @@ import sanliy.spider.novel.MainViewModel
 import sanliy.spider.novel.NovelApplication
 import sanliy.spider.novel.R
 import sanliy.spider.novel.model.Task
-import sanliy.spider.novel.net.sfacg.model.RequestNovels
+import sanliy.spider.novel.net.sfacg.model.CharCount
+import sanliy.spider.novel.net.sfacg.model.FinishedStatus
+import sanliy.spider.novel.net.sfacg.model.FreeStatus
+import sanliy.spider.novel.net.sfacg.model.NovelsType
 import sanliy.spider.novel.net.sfacg.model.SysTag
+import sanliy.spider.novel.net.sfacg.model.UpdatedDate
 import sanliy.spider.novel.tripleSwitch
 import sanliy.spider.novel.ui.page.unit.TextWithPressTopBar
 import sanliy.spider.novel.ui.page.unit.UnitFilterChip
@@ -281,13 +285,13 @@ fun StateOption(viewModel: SFViewModel) {
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(stringResource(R.string.option_sf_15))
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            RequestNovels.NovelsType.Zh.map.forEach { (k, v) ->
-                UnitFilterChip(v, k == viewModel.task.base.requestNovels.type) {
+            NovelsType.entries.forEach {
+                UnitFilterChip(it.zh, it.value == viewModel.task.base.requestNovels.type) {
                     viewModel.task =
                         viewModel.task.copy(
                             base = viewModel.task.base.copy(
                                 requestNovels = viewModel.task.base.requestNovels.copy(
-                                    type = k
+                                    type = it.value
                                 )
                             )
                         )
@@ -297,13 +301,13 @@ fun StateOption(viewModel: SFViewModel) {
 
         Text(stringResource(R.string.option_sf_7))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            RequestNovels.OptionStatus.ZhFinish.map.forEach { (key, value) ->
-                UnitFilterChip(value, key == viewModel.task.base.requestNovels.isfinish) {
+            FinishedStatus.entries.forEach {
+                UnitFilterChip(it.zh, it.value == viewModel.task.base.requestNovels.isfinish) {
                     viewModel.task =
                         viewModel.task.copy(
                             base = viewModel.task.base.copy(
                                 requestNovels = viewModel.task.base.requestNovels.copy(
-                                    isfinish = key
+                                    isfinish = it.value
                                 )
                             )
                         )
@@ -313,13 +317,13 @@ fun StateOption(viewModel: SFViewModel) {
 
         Text(stringResource(R.string.option_sf_8))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            RequestNovels.OptionStatus.ZhFree.map.forEach { (key, value) ->
-                UnitFilterChip(value, key == viewModel.task.base.requestNovels.isfree) {
+            FreeStatus.entries.forEach {
+                UnitFilterChip(it.zh, it.value == viewModel.task.base.requestNovels.isfree) {
                     viewModel.task =
                         viewModel.task.copy(
                             base = viewModel.task.base.copy(
                                 requestNovels = viewModel.task.base.requestNovels.copy(
-                                    isfree = key
+                                    isfree = it.value
                                 )
                             )
                         )
@@ -329,13 +333,13 @@ fun StateOption(viewModel: SFViewModel) {
 
         Text(stringResource(R.string.option_sf_9))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            RequestNovels.UpdateDays.Zh.map.forEach { (key, value) ->
-                UnitFilterChip(value, key == viewModel.task.base.requestNovels.updatedays) {
+            UpdatedDate.entries.forEach {
+                UnitFilterChip(it.zh, it.value == viewModel.task.base.requestNovels.updatedays) {
                     viewModel.task =
                         viewModel.task.copy(
                             base = viewModel.task.base.copy(
                                 requestNovels = viewModel.task.base.requestNovels.copy(
-                                    updatedays = key
+                                    updatedays = it.value
                                 )
                             )
                         )
@@ -345,13 +349,19 @@ fun StateOption(viewModel: SFViewModel) {
 
         Text(stringResource(R.string.option_sf_10))
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            RequestNovels.CharCount.map.forEach { (key, value) ->
-                UnitFilterChip(value, key == viewModel.task.base.requestNovels.charCount) {
+            CharCount.entries.forEach {
+                UnitFilterChip(
+                    it.zh, it == CharCount.fromValue(
+                        viewModel.task.base.requestNovels.beginCount,
+                        viewModel.task.base.requestNovels.endCount
+                    )
+                ) {
                     viewModel.task =
                         viewModel.task.copy(
                             base = viewModel.task.base.copy(
                                 requestNovels = viewModel.task.base.requestNovels.copy(
-                                    charCount = key
+                                    beginCount = it.beginCount,
+                                    endCount = it.endCount
                                 )
                             )
                         )

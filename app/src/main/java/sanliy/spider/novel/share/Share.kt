@@ -2,34 +2,39 @@ package sanliy.spider.novel.share
 
 import android.content.Context
 import android.content.Intent
+import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import io.github.evanrupert.excelkt.workbook
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import sanliy.spider.novel.excelkt.workbook
+import kotlinx.coroutines.withContext
 import sanliy.spider.novel.model.DbSfNovel
 import sanliy.spider.novel.model.Task
 import java.io.File
 
-const val DownloadPath = "/storage/emulated/0/Download"
-
-fun writeToExcelAndShare(task: Task, context: Context, novels: List<DbSfNovel>) {
+suspend fun writeToExcelAndShare(task: Task, context: Context, novels: List<DbSfNovel>) {
     val fileName = "ID-${task.base.id}-${task.base.name}.xlsx"
-    var file = File(DownloadPath, "/${context.packageName}")
+    val documentPath =
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+    val path = "$documentPath/${context.packageName}"
+    var file = File(path)
     file.mkdir()
-    file = File("$DownloadPath/${context.packageName}", fileName)
+    file = File(path, fileName)
+
     if (!file.exists()) {
-        CoroutineScope(Dispatchers.Main).launch {
-            Toast.makeText(context, "正在导出文件到Download文件夹", Toast.LENGTH_SHORT).show()
+        withContext(Dispatchers.Main) {
+            Toast.makeText(context, "正在导出文件到${path}文件夹", Toast.LENGTH_SHORT).show()
         }
-        writeNovelsToExcel(novels, "$DownloadPath/${context.packageName}", fileName)
+        writeNovelsToExcel(novels, "$path/$fileName")
     }
+
     shareExcel(context, file)
 }
 
-fun writeNovelsToExcel(novels: List<DbSfNovel>, path: String, fileName: String) {
+fun writeNovelsToExcel(novels: List<DbSfNovel>, filePath: String) {
     workbook {
         sheet {
             row {
@@ -73,7 +78,7 @@ fun writeNovelsToExcel(novels: List<DbSfNovel>, path: String, fileName: String) 
                 }
             }
         }
-    }.write("$path/$fileName")
+    }.write(filePath)
 
 }
 
@@ -86,7 +91,7 @@ fun shareExcel(context: Context, file: File) {
             putExtra(Intent.EXTRA_STREAM, uri)
         }, "分享"))
     } catch (e: Exception) {
-        Log.d("share.Share", e.message.toString())
+        Log.d("Share.shareExcel", e.message.toString())
         CoroutineScope(Dispatchers.Main).launch {
             Toast.makeText(context, "请先下载WPS或者MS Excel", Toast.LENGTH_SHORT)
                 .show()

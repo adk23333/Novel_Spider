@@ -29,7 +29,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import sanliy.spider.novel.MainViewModel
 import sanliy.spider.novel.model.APP
 import sanliy.spider.novel.model.Task
-import sanliy.spider.novel.net.sfacg.model.RequestNovels
+import sanliy.spider.novel.net.sfacg.model.CharCount
+import sanliy.spider.novel.net.sfacg.model.FinishedStatus
+import sanliy.spider.novel.net.sfacg.model.FreeStatus
+import sanliy.spider.novel.net.sfacg.model.NovelsType
+import sanliy.spider.novel.net.sfacg.model.UpdatedDate
 import sanliy.spider.novel.ui.theme.Novel_SpiderTheme
 
 @Composable
@@ -67,20 +71,25 @@ fun TaskCard(
                     color = MaterialTheme.colorScheme.errorContainer,
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text(APP.int2zh(task.base.app), Modifier.padding(4.dp))
+                    Text(APP.valueOf(task.base.app).zh, Modifier.padding(4.dp))
                 }
             }
             Text(
                 "页码：${task.base.start}->${if (task.base.end == 0) "∞" else task.base.end}  "
-                        + "字数：${RequestNovels.CharCount.map[task.base.requestNovels.charCount]}  "
-                        + "类型：${RequestNovels.NovelsType.Zh.map[task.base.requestNovels.type]}"
+                        + "字数：${
+                    CharCount.fromValue(
+                        task.base.requestNovels.beginCount,
+                        task.base.requestNovels.endCount
+                    ).zh
+                }  "
+                        + "类型：${NovelsType.fromValue(task.base.requestNovels.type).zh}"
             )
             HorizontalDivider()
             Text(
                 "完结：${
-                    RequestNovels.OptionStatus.ZhFinish.map[task.base.requestNovels.isfinish]
-                }  签约：${RequestNovels.OptionStatus.ZhFree.map[task.base.requestNovels.isfree]}  最近更新：${
-                    RequestNovels.UpdateDays.Zh.map[task.base.requestNovels.updatedays]
+                    FinishedStatus.fromValue(task.base.requestNovels.isfinish).zh
+                }  签约：${FreeStatus.fromValue(task.base.requestNovels.isfree).zh}  最近更新：${
+                    UpdatedDate.fromValue(task.base.requestNovels.updatedays).zh
                 }"
             )
             Text("标签：${

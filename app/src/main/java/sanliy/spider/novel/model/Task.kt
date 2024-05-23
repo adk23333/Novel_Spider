@@ -22,7 +22,7 @@ data class Task(
     data class Base(
         @PrimaryKey(autoGenerate = true) var id: Long?,
         var name: String = "默认任务",
-        val app: Int = APP.SFACG.int,
+        val app: String = APP.SFACG.name,
         @Embedded val requestNovels: RequestNovels = RequestNovels(),
         var start: Int = 0,
         var end: Int = 0,
@@ -32,8 +32,8 @@ data class Task(
 
     fun toMap(page: Int): MutableMap<String, String> {
         return mutableMapOf(
-            "charcountbegin" to base.requestNovels.charCount.beginCount.toString(),
-            "charcountend" to base.requestNovels.charCount.endCount.toString(),
+            "charcountbegin" to base.requestNovels.beginCount.toString(),
+            "charcountend" to base.requestNovels.endCount.toString(),
             "expand" to base.requestNovels.expand,
             "isfinish" to base.requestNovels.isfinish,
             "isfree" to base.requestNovels.isfree,
@@ -48,17 +48,6 @@ data class Task(
 }
 
 
-object APP {
-    object SFACG {
-        const val en = "SFACG"
-        const val zh = "菠萝包"
-        const val int = 0
-    }
-
-    fun int2zh(int: Int): String {
-        return when (int) {
-            0 -> SFACG.zh
-            else -> "转换错误"
-        }
-    }
+enum class APP(val zh: String) {
+    SFACG("菠萝包");
 }

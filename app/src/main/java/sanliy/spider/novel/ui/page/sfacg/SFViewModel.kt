@@ -13,6 +13,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import sanliy.spider.novel.model.Task
 import sanliy.spider.novel.net.sfacg.api.SfacgAPI
 import sanliy.spider.novel.net.sfacg.model.ResultSysTag
@@ -48,8 +49,11 @@ class SFViewModel(private val db: NovelsDatabase) : ViewModel() {
                     Log.d(this@SFViewModel::class.simpleName, errorBody.toString())
                 }
             }.onFailure {
-                Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
-                Log.d(this@SFViewModel::class.simpleName, it.message.toString())
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                }
+
+                throw it
             }
             refreshTags = false
         }
