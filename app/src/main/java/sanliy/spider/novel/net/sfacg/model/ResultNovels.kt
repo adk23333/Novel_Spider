@@ -1,9 +1,13 @@
 package sanliy.spider.novel.net.sfacg.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class ResultNovels(
     val status: Status = Status(),
     val data: List<Novels> = listOf(),
 ) {
+    @Serializable
     data class Novels(
         val novelId: Int = 0,
         val authorId: Int = 0,
@@ -26,14 +30,15 @@ data class ResultNovels(
         val expand: Expand = Expand(),
     )
 
-
+    @Serializable
     data class Expand(
         val typeName: String = "",
-        val discount: Int = 1,
+        val discount: Double = 1.0,
         val discountExpireDate: String = "",
         val sysTags: List<SysTag> = listOf(),
     )
 
+    @Serializable
     data class SysTag(
         val sysTagId: Int = 0,
         val tagName: String = "",

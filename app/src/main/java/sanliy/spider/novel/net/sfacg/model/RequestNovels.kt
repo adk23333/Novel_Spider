@@ -1,8 +1,10 @@
 package sanliy.spider.novel.net.sfacg.model
 
 import androidx.room.Ignore
+import kotlinx.serialization.Serializable
 
 
+@Serializable
 data class RequestNovels(
     var beginCount: Int,
     var endCount: Int,
