@@ -23,7 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,9 +30,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import sanliy.spider.novel.MainViewModel
-import sanliy.spider.novel.NovelApplication
 import sanliy.spider.novel.R
 import sanliy.spider.novel.ui.page.unit.TextWithPressTopBar
 import sanliy.spider.novel.ui.theme.Novel_SpiderTheme
@@ -45,10 +44,7 @@ fun CrawlerScreen(
     onPressBack: () -> Unit,
     onCrawlerToHome: () -> Unit,
 ) {
-    val context = LocalContext.current
-    val app = remember { context.applicationContext }
-    val viewModel: CrawlerViewModel =
-        viewModel(factory = CrawlerViewModelFactory((app as NovelApplication).database))
+    val viewModel: CrawlerViewModel = hiltViewModel()
     LaunchedEffect(Unit) {
         viewModel.task = mainViewModel.task
     }

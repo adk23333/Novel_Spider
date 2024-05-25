@@ -12,14 +12,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import sanliy.spider.novel.MainViewModel
-import sanliy.spider.novel.NovelApplication
 import sanliy.spider.novel.R
 import sanliy.spider.novel.ui.page.unit.TextWithPressTopBar
 
@@ -30,10 +27,7 @@ fun HistoryScreen(
     onPressBack: () -> Unit,
     onHistoryToCrawler: () -> Unit,
 ) {
-    val context = LocalContext.current
-    val app = remember { context.applicationContext }
-    val viewModel: RecordViewModel =
-        viewModel(factory = RecordViewModelFactory((app as NovelApplication).database))
+    val viewModel: RecordViewModel = hiltViewModel()
     val tasks = viewModel.db.taskDao().getTasks().collectAsState(listOf())
     Scaffold(Modifier.fillMaxSize(),
         { TextWithPressTopBar(stringResource(R.string.history_1), { onPressBack() }) }

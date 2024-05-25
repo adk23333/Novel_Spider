@@ -7,8 +7,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -19,8 +19,10 @@ import sanliy.spider.novel.net.sfacg.api.SfacgAPI
 import sanliy.spider.novel.net.sfacg.model.ResultSysTag
 import sanliy.spider.novel.net.sfacg.model.SysTag
 import sanliy.spider.novel.room.NovelsDatabase
+import javax.inject.Inject
 
-class SFViewModel(private val db: NovelsDatabase) : ViewModel() {
+@HiltViewModel
+class SFViewModel @Inject constructor(val db: NovelsDatabase) : ViewModel() {
     private val retrofit = SfacgAPI.createSfacgAPI()
 
     var isCrawlerContext by mutableStateOf(false)
@@ -78,14 +80,4 @@ class SFViewModel(private val db: NovelsDatabase) : ViewModel() {
     }
 
 
-}
-
-class SFViewModelFactory(private val db: NovelsDatabase) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(SFViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return SFViewModel(db) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
 }

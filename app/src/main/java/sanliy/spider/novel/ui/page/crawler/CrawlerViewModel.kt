@@ -7,8 +7,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -24,8 +24,10 @@ import sanliy.spider.novel.net.sfacg.api.SfacgAPI
 import sanliy.spider.novel.net.sfacg.model.ResultSysTag
 import sanliy.spider.novel.room.NovelsDatabase
 import sanliy.spider.novel.share.writeToExcelAndShare
+import javax.inject.Inject
 
-class CrawlerViewModel(private val db: NovelsDatabase) : ViewModel() {
+@HiltViewModel
+class CrawlerViewModel @Inject constructor(val db: NovelsDatabase) : ViewModel() {
     private val retrofit = SfacgAPI.createSfacgAPI()
     var task by mutableStateOf(Task(null))
     val export = mutableStateOf(false)
@@ -141,14 +143,5 @@ class CrawlerViewModel(private val db: NovelsDatabase) : ViewModel() {
             val novels = db.sfNovelsDao().getTaskNovels(task.base.id!!)
             writeToExcelAndShare(task, context, novels)
         }
-    }
-}
-
-class CrawlerViewModelFactory(private val db: NovelsDatabase) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(CrawlerViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST") return CrawlerViewModel(db) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

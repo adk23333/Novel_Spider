@@ -1,7 +1,8 @@
 plugins {
     id("com.android.application")
-    kotlin("android")
     id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
+    kotlin("android")
     kotlin("plugin.serialization")
 }
 
@@ -66,6 +67,8 @@ android {
 
 val uiVersion = "1.6.7"
 val roomVersion = "2.6.1"
+val ktorVersion = "2.3.11"
+val hiltVersion = "2.51.1"
 
 dependencies {
     implementation(platform("androidx.compose:compose-bom:2024.05.00"))
@@ -81,8 +84,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.05.00"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:${uiVersion}")
     debugImplementation("androidx.compose.ui:ui-tooling:${uiVersion}")
     debugImplementation("androidx.compose.ui:ui-test-manifest:${uiVersion}")
 
@@ -91,6 +92,9 @@ dependencies {
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.0")
@@ -100,13 +104,13 @@ dependencies {
     ksp("androidx.room:room-compiler:${roomVersion}")
     implementation("androidx.room:room-ktx:${roomVersion}")
     annotationProcessor("androidx.room:room-compiler:${roomVersion}")
-    testImplementation("androidx.room:room-testing:${roomVersion}")
 
     implementation("io.github.evanrupert:excelkt:1.0.2")
 
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    implementation("com.google.dagger:hilt-android:$hiltVersion")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    ksp("com.google.dagger:dagger-compiler:$hiltVersion")
+    ksp("com.google.dagger:hilt-compiler:$hiltVersion")
 
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 }

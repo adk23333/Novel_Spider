@@ -12,6 +12,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import dagger.hilt.android.AndroidEntryPoint
 import sanliy.spider.novel.ui.page.HomeScreen
 import sanliy.spider.novel.ui.page.crawler.CrawlerScreen
 import sanliy.spider.novel.ui.page.record.HistoryScreen
@@ -20,6 +21,7 @@ import sanliy.spider.novel.ui.page.sfacg.OptionSF
 import sanliy.spider.novel.ui.theme.Novel_SpiderTheme
 
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

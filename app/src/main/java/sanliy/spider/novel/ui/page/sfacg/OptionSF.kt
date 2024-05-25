@@ -55,13 +55,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import sanliy.spider.novel.MainViewModel
-import sanliy.spider.novel.NovelApplication
 import sanliy.spider.novel.R
 import sanliy.spider.novel.model.Task
 import sanliy.spider.novel.net.sfacg.model.CharCount
@@ -76,10 +76,7 @@ import sanliy.spider.novel.ui.page.unit.UnitFilterChip
 
 @Composable
 fun OptionSF(mainViewModel: MainViewModel, onOptSfToCrawler: () -> Unit, onPressBack: () -> Unit) {
-    val context = LocalContext.current
-    val app = remember { context.applicationContext }
-    val viewModel: SFViewModel =
-        viewModel(factory = SFViewModelFactory((app as NovelApplication).database))
+    val viewModel: SFViewModel = hiltViewModel()
 
     Scaffold(
         Modifier.fillMaxSize(),
