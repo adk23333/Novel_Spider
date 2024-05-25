@@ -39,37 +39,40 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import sanliy.spider.novel.R
+import sanliy.spider.novel.Screen
 import sanliy.spider.novel.ui.theme.Novel_SpiderTheme
 
 @Composable
-fun HomeScreen(onHomeToOptSF: () -> Unit, onHomeToMark: () -> Unit, onHomeToHistory: () -> Unit) {
+fun HomeScreen(navController: NavHostController = rememberNavController()) {
     val snackBarState = remember { SnackbarHostState() }
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
-        topBar = { HomeTopBar(onHomeToHistory, onHomeToMark) },
+        topBar = { HomeTopBar(navController) },
         snackbarHost = { SnackbarHost(snackBarState) },
     ) {
-        HomeContext(it, onHomeToOptSF, snackBarState)
+        HomeContext(it, snackBarState, navController)
     }
 }
 
 
 @Composable
-fun HomeTopBar(onHomeToHistory: () -> Unit, onHomeToMark: () -> Unit) {
+fun HomeTopBar(navController: NavHostController) {
     TopAppBar(
-        { Text(stringResource(R.string.home)) },
+        { Text(stringResource(Screen.HOME.stringId)) },
         actions = {
             IconButton(onClick = {
-                onHomeToMark()
+                navController.navigate(Screen.MARK.route)
             }) {
                 Icon(Icons.Filled.Favorite, null)
             }
             IconButton(onClick = {
-                onHomeToHistory()
+                navController.navigate(Screen.HISTORY.route)
             }) {
                 Icon(painterResource(R.drawable.history), null)
             }
@@ -83,8 +86,8 @@ fun HomeTopBar(onHomeToHistory: () -> Unit, onHomeToMark: () -> Unit) {
 @Composable
 fun HomeContext(
     paddingValues: PaddingValues,
-    onHomeToOptSF: () -> Unit,
     snackBarState: SnackbarHostState,
+    navController: NavHostController,
 ) {
     val scope = rememberCoroutineScope()
     Box(
@@ -98,7 +101,7 @@ fun HomeContext(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             IconWithTextButton(R.drawable.ic_action_sfacg, R.string.home_sfacg) {
-                onHomeToOptSF()
+                navController.navigate(Screen.OPTION_SF.route)
             }
             IconWithTextButton(R.drawable.ic_action_ciweimao, R.string.home_ciweimao) {
                 scope.launch {
@@ -136,6 +139,6 @@ fun IconWithTextButton(
 @Composable
 fun HomeActivityPagePreview() {
     Novel_SpiderTheme {
-        HomeScreen({}, {}) {}
+        HomeScreen()
     }
 }

@@ -25,8 +25,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import sanliy.spider.novel.MainViewModel
+import sanliy.spider.novel.Screen
 import sanliy.spider.novel.model.APP
 import sanliy.spider.novel.model.Task
 import sanliy.spider.novel.net.sfacg.model.CharCount
@@ -42,15 +45,15 @@ fun TaskCard(
     index: Int,
     task: Task,
     isMarkScreen: Boolean,
-    viewModel: RecordViewModel,
-    mainViewModel: MainViewModel,
-    onRecordToCrawler: () -> Unit,
+    navController: NavHostController = rememberNavController(),
+    mainViewModel: MainViewModel = hiltViewModel(),
+    recordViewModel: RecordViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     Surface(
         onClick = {
             mainViewModel.task = task.copy(base = task.base.copy(id = null, isMark = false))
-            onRecordToCrawler()
+            navController.navigate(Screen.SPIDER.route)
         },
         modifier,
         shape = RoundedCornerShape(8.dp),
@@ -105,7 +108,7 @@ fun TaskCard(
                 if (!isMarkScreen) {
                     Button(
                         onClick = {
-                            viewModel.delete(task)
+                            recordViewModel.delete(task)
                         },
                         Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(Color.Transparent)
@@ -118,7 +121,7 @@ fun TaskCard(
                     }
                 }
                 Button(
-                    onClick = { viewModel.switchIsMark(task) },
+                    onClick = { recordViewModel.switchIsMark(task) },
                     Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(Color.Transparent)
                 ) {
@@ -129,7 +132,7 @@ fun TaskCard(
                     )
                 }
                 Button(
-                    onClick = { viewModel.writeExcel(context, task) },
+                    onClick = { recordViewModel.writeExcel(context, task) },
                     Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
                 ) {
@@ -149,7 +152,7 @@ fun TaskCardPreview() {
                 .padding(16.dp, 8.dp)
                 .wrapContentHeight()
                 .fillMaxWidth(),
-            index = 0, task = Task(1), false, viewModel(), viewModel()
-        ) {}
+            index = 0, task = Task(1), false
+        )
     }
 }

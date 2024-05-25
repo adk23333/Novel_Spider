@@ -31,41 +31,47 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import sanliy.spider.novel.MainViewModel
 import sanliy.spider.novel.R
+import sanliy.spider.novel.Screen
 import sanliy.spider.novel.ui.page.unit.TextWithPressTopBar
 import sanliy.spider.novel.ui.theme.Novel_SpiderTheme
 
 
 @Composable
 fun CrawlerScreen(
-    mainViewModel: MainViewModel,
-    onPressBack: () -> Unit,
-    onCrawlerToHome: () -> Unit,
+    navController: NavHostController = rememberNavController(),
+    mainViewModel: MainViewModel = hiltViewModel(),
 ) {
-    val viewModel: CrawlerViewModel = hiltViewModel()
+    val crawlerViewModel: CrawlerViewModel = hiltViewModel()
     LaunchedEffect(Unit) {
-        viewModel.task = mainViewModel.task
+        crawlerViewModel.task = mainViewModel.task
     }
     Scaffold(
         Modifier.fillMaxSize(),
         topBar = {
-            TextWithPressTopBar(stringResource(R.string.crawler_sf), { onPressBack() }) {
-                IconButton(onClick = { onCrawlerToHome() }) {
+            TextWithPressTopBar(
+                stringResource(Screen.SPIDER.stringId),
+                { navController.popBackStack() }) {
+                IconButton(onClick = { navController.navigate(Screen.HOME.route) }) {
                     Icon(Icons.Filled.Home, null)
                 }
             }
         }) {
-        SfCrawlerContext(it, viewModel)
+        SfCrawlerContext(it, crawlerViewModel)
     }
 }
 
 
 @Composable
-fun SfCrawlerContext(paddingValues: PaddingValues, viewModel: CrawlerViewModel) {
+fun SfCrawlerContext(
+    paddingValues: PaddingValues,
+    crawlerViewModel: CrawlerViewModel = hiltViewModel(),
+) {
     val context = LocalContext.current
-    val novels = viewModel.novelsStateFlow.collectAsState()
+    val novels = crawlerViewModel.novelsStateFlow.collectAsState()
     val state = ScrollState(0)
     Column(
         Modifier
@@ -92,21 +98,21 @@ fun SfCrawlerContext(paddingValues: PaddingValues, viewModel: CrawlerViewModel) 
         }
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             Button(onClick = {
-                if (viewModel.task.base.id != null) {
-                    if (!viewModel.task.base.isMark) viewModel.insertTask()
+                if (crawlerViewModel.task.base.id != null) {
+                    if (!crawlerViewModel.task.base.isMark) crawlerViewModel.insertTask()
                 } else
-                    viewModel.insertTask()
+                    crawlerViewModel.insertTask()
 
-                viewModel.getNovels(context)
+                crawlerViewModel.getNovels(context)
 
-            }, enabled = !viewModel.export.value) {
-                Text(text = stringResource(R.string.crawler_sf_1))
+            }, enabled = !crawlerViewModel.export.value) {
+                Text(text = stringResource(R.string.spider_sf_1))
             }
             Button(
-                onClick = { viewModel.shareToExcel(context) },
-                enabled = viewModel.export.value
+                onClick = { crawlerViewModel.shareToExcel(context) },
+                enabled = crawlerViewModel.export.value
             ) {
-                Text(text = stringResource(R.string.crawler_sf_2))
+                Text(text = stringResource(R.string.spider_sf_2))
             }
         }
 
@@ -119,7 +125,7 @@ fun SfCrawlerContext(paddingValues: PaddingValues, viewModel: CrawlerViewModel) 
 @Preview(showBackground = true)
 fun SfCrawlerContextPreview() {
     Novel_SpiderTheme {
-        SfCrawlerContext(paddingValues = PaddingValues(0.dp), viewModel = viewModel())
+        SfCrawlerContext(paddingValues = PaddingValues(0.dp))
     }
 }
 

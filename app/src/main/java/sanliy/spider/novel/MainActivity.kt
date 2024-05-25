@@ -5,8 +5,10 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -44,17 +46,19 @@ class MainActivity : ComponentActivity() {
 }
 
 
-const val HOME_SCREEN = "Home"
-const val OPTION_SF = "OptionSF"
-const val Crawler = "Crawler"
-const val HISTORY = "History"
-const val MARK = "Mark"
+enum class Screen(val route: String, @StringRes val stringId: Int) {
+    HOME("home", R.string.home),
+    OPTION_SF("option_sf", R.string.option_sf),
+    SPIDER("crawler", R.string.spider_sf),
+    HISTORY("history", R.string.history_1),
+    MARK("mark", R.string.mark_1)
+}
 
 @Composable
 fun MainNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: String = HOME_SCREEN,
+    startDestination: String = Screen.HOME.route,
     viewModel: MainViewModel = viewModel(),
 ) {
     NavHost(
@@ -62,39 +66,21 @@ fun MainNavHost(
         navController = navController,
         startDestination = startDestination
     ) {
-        composable(HOME_SCREEN) {
-            HomeScreen(
-                { navController.navigate(OPTION_SF) },
-                { navController.navigate(MARK) },
-                { navController.navigate(HISTORY) })
-        }
-        composable(OPTION_SF) {
-            OptionSF(
-                viewModel,
-                { navController.navigate(Crawler) }) { navController.popBackStack() }
-        }
-        composable(HISTORY) {
-            HistoryScreen(
-                viewModel,
-                { navController.popBackStack() },
-                { navController.navigate(Crawler) })
-        }
-        composable(MARK) {
-            MarkScreen(
-                viewModel,
-                { navController.popBackStack() },
-                { navController.navigate(Crawler) })
-        }
-        composable(Crawler) {
-            CrawlerScreen(
-                viewModel,
-                { navController.popBackStack() },
-                { navController.navigate(HOME_SCREEN) })
-        }
-
+        composable(Screen.HOME.route) { HomeScreen(navController) }
+        composable(Screen.OPTION_SF.route) { OptionSF(navController) }
+        composable(Screen.HISTORY.route) { HistoryScreen(navController) }
+        composable(Screen.MARK.route) { MarkScreen(navController) }
+        composable(Screen.SPIDER.route) { CrawlerScreen(navController, viewModel) }
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun MainNavHostPreview() {
+    Novel_SpiderTheme {
+        MainNavHost()
+    }
+}
 
 
 

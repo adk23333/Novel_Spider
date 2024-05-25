@@ -56,13 +56,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import sanliy.spider.novel.MainViewModel
 import sanliy.spider.novel.R
+import sanliy.spider.novel.Screen
 import sanliy.spider.novel.model.Task
 import sanliy.spider.novel.net.sfacg.model.CharCount
 import sanliy.spider.novel.net.sfacg.model.FinishedStatus
@@ -75,30 +77,30 @@ import sanliy.spider.novel.ui.page.unit.TextWithPressTopBar
 import sanliy.spider.novel.ui.page.unit.UnitFilterChip
 
 @Composable
-fun OptionSF(mainViewModel: MainViewModel, onOptSfToCrawler: () -> Unit, onPressBack: () -> Unit) {
-    val viewModel: SFViewModel = hiltViewModel()
-
+fun OptionSF(navController: NavHostController = rememberNavController()) {
     Scaffold(
         Modifier.fillMaxSize(),
         topBar = {
-            TextWithPressTopBar(stringResource(R.string.option_sf), { onPressBack() })
+            TextWithPressTopBar(
+                stringResource(Screen.OPTION_SF.stringId),
+                { navController.popBackStack() })
         }) {
-        OptionSFContext(it, viewModel, mainViewModel, onOptSfToCrawler)
+        OptionSFContext(it, navController)
     }
 }
 
 @Composable
 fun OptionSFContext(
     paddingValues: PaddingValues,
-    viewModel: SFViewModel,
-    mainViewModel: MainViewModel,
-    onOptSfToCrawler: () -> Unit,
+    navController: NavHostController = rememberNavController(),
+    mainViewModel: MainViewModel = hiltViewModel(),
+    sfViewModel: SFViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val text = stringResource(R.string.option_sf_13)
     val text2 = stringResource(R.string.option_sf_14)
     var isMark by remember { mutableStateOf(true) }
-    var taskName by remember { mutableStateOf(viewModel.task.base.name) }
+    var taskName by remember { mutableStateOf(sfViewModel.task.base.name) }
     Column(
         Modifier
             .padding(paddingValues)
@@ -108,27 +110,27 @@ fun OptionSFContext(
     ) {
         OutlinedTextField(taskName, {
             taskName = it
-            viewModel.task.base.name = taskName
+            sfViewModel.task.base.name = taskName
         }, label = {
             Text(stringResource(R.string.option_sf_task_name))
         }, maxLines = 3)
-        TagsSelect(viewModel)
-        OtherOptions(viewModel)
+        TagsSelect(sfViewModel)
+        OtherOptions(sfViewModel)
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(isMark, {
                 isMark = it
-                viewModel.task.base.isMark = isMark
+                sfViewModel.task.base.isMark = isMark
             })
             Text(stringResource(R.string.option_sf_12))
         }
         Button(onClick = {
-            if (viewModel.task.base.name != "") {
-                if (viewModel.task.base.isMark) {
-                    viewModel.insertTask()
+            if (sfViewModel.task.base.name != "") {
+                if (sfViewModel.task.base.isMark) {
+                    sfViewModel.insertTask()
                     Toast.makeText(context, text2, Toast.LENGTH_SHORT).show()
                 }
-                mainViewModel.task = viewModel.task
-                onOptSfToCrawler()
+                mainViewModel.task = sfViewModel.task
+                navController.navigate(Screen.SPIDER.route)
             } else
                 Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
         }, Modifier.width(200.dp)) {
@@ -139,12 +141,12 @@ fun OptionSFContext(
 
 
 @Composable
-fun TagsSelect(viewModel: SFViewModel) {
+fun TagsSelect(sfViewModel: SFViewModel = hiltViewModel()) {
     var rotate by remember { mutableFloatStateOf(0f) }
-    val tags by viewModel.tagsStateFlow.collectAsState()
+    val tags by sfViewModel.tagsStateFlow.collectAsState()
     val context = LocalContext.current
     LaunchedEffect(Unit) {
-        viewModel.getSysTags(context)
+        sfViewModel.getSysTags(context)
     }
     Column(
         Modifier
@@ -166,10 +168,10 @@ fun TagsSelect(viewModel: SFViewModel) {
                 Modifier
                     .clip(CircleShape)
                     .clickable {
-                        viewModel.getSysTags(context)
+                        sfViewModel.getSysTags(context)
                         CoroutineScope(Dispatchers.IO).launch {
                             //旋转时长 1s  旋转速度 2f/1ms
-                            while (viewModel.refreshTags) {
+                            while (sfViewModel.refreshTags) {
                                 (0..360 * 1).forEach { _ ->
                                     rotate += 2f
                                     delay(1)
@@ -181,14 +183,14 @@ fun TagsSelect(viewModel: SFViewModel) {
         }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             tags.forEach {
-                TagFilterChip(it, viewModel)
+                TagFilterChip(it, sfViewModel)
             }
         }
     }
 }
 
 @Composable
-fun TagFilterChip(tag: SysTag, viewModel: SFViewModel = viewModel()) {
+fun TagFilterChip(tag: SysTag, sfViewModel: SFViewModel = hiltViewModel()) {
     var selected by rememberSaveable { mutableIntStateOf(0) }
     val checkLeadingIcon: @Composable () -> Unit = { Icon(Icons.Default.Check, null) }
     val shieldLeadingIcon: @Composable () -> Unit = { Icon(Icons.Default.Close, null) }
@@ -198,12 +200,12 @@ fun TagFilterChip(tag: SysTag, viewModel: SFViewModel = viewModel()) {
             selected = tripleSwitch(selected)
             when (selected) {
                 -1 -> {
-                    viewModel.task.systagids.remove(tag)
-                    viewModel.task.notexcludesystagids.add(tag)
+                    sfViewModel.task.systagids.remove(tag)
+                    sfViewModel.task.notexcludesystagids.add(tag)
                 }
 
-                0 -> viewModel.task.notexcludesystagids.remove(tag)
-                1 -> viewModel.task.systagids.add(tag)
+                0 -> sfViewModel.task.notexcludesystagids.remove(tag)
+                1 -> sfViewModel.task.systagids.add(tag)
             }
 
         },
@@ -222,7 +224,7 @@ fun TagFilterChip(tag: SysTag, viewModel: SFViewModel = viewModel()) {
 
 
 @Composable
-fun OtherOptions(viewModel: SFViewModel) {
+fun OtherOptions(sfViewModel: SFViewModel = hiltViewModel()) {
     var visible by rememberSaveable { mutableStateOf(false) }
     Column(
         Modifier
@@ -237,14 +239,14 @@ fun OtherOptions(viewModel: SFViewModel) {
                 visible = !visible
             })
         else {
-            PageOption(viewModel.task, viewModel)
-            StateOption(viewModel)
+            PageOption(sfViewModel.task, sfViewModel)
+            StateOption(sfViewModel)
         }
     }
 }
 
 @Composable
-fun PageOption(task: Task, viewModel: SFViewModel) {
+fun PageOption(task: Task, sfViewModel: SFViewModel) {
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(stringResource(R.string.option_sf_2))
         Row(Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -253,8 +255,8 @@ fun PageOption(task: Task, viewModel: SFViewModel) {
                 task.base.start.toString(),
                 { v ->
                     v.toIntOrNull()?.let { vi ->
-                        viewModel.task =
-                            viewModel.task.copy(base = viewModel.task.base.copy(start = vi))
+                        sfViewModel.task =
+                            sfViewModel.task.copy(base = sfViewModel.task.base.copy(start = vi))
                     }
                 },
                 Modifier.width(80.dp),
@@ -265,8 +267,8 @@ fun PageOption(task: Task, viewModel: SFViewModel) {
                 task.base.end.toString(),
                 { v ->
                     v.toIntOrNull()?.let { vi ->
-                        viewModel.task =
-                            viewModel.task.copy(base = viewModel.task.base.copy(end = vi))
+                        sfViewModel.task =
+                            sfViewModel.task.copy(base = sfViewModel.task.base.copy(end = vi))
                     }
                 },
                 Modifier.width(80.dp),
@@ -278,16 +280,16 @@ fun PageOption(task: Task, viewModel: SFViewModel) {
 
 
 @Composable
-fun StateOption(viewModel: SFViewModel) {
+fun StateOption(sfViewModel: SFViewModel) {
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(stringResource(R.string.option_sf_15))
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             NovelsType.entries.forEach {
-                UnitFilterChip(it.zh, it.value == viewModel.task.base.requestNovels.type) {
-                    viewModel.task =
-                        viewModel.task.copy(
-                            base = viewModel.task.base.copy(
-                                requestNovels = viewModel.task.base.requestNovels.copy(
+                UnitFilterChip(it.zh, it.value == sfViewModel.task.base.requestNovels.type) {
+                    sfViewModel.task =
+                        sfViewModel.task.copy(
+                            base = sfViewModel.task.base.copy(
+                                requestNovels = sfViewModel.task.base.requestNovels.copy(
                                     type = it.value
                                 )
                             )
@@ -299,11 +301,11 @@ fun StateOption(viewModel: SFViewModel) {
         Text(stringResource(R.string.option_sf_7))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             FinishedStatus.entries.forEach {
-                UnitFilterChip(it.zh, it.value == viewModel.task.base.requestNovels.isfinish) {
-                    viewModel.task =
-                        viewModel.task.copy(
-                            base = viewModel.task.base.copy(
-                                requestNovels = viewModel.task.base.requestNovels.copy(
+                UnitFilterChip(it.zh, it.value == sfViewModel.task.base.requestNovels.isfinish) {
+                    sfViewModel.task =
+                        sfViewModel.task.copy(
+                            base = sfViewModel.task.base.copy(
+                                requestNovels = sfViewModel.task.base.requestNovels.copy(
                                     isfinish = it.value
                                 )
                             )
@@ -315,11 +317,11 @@ fun StateOption(viewModel: SFViewModel) {
         Text(stringResource(R.string.option_sf_8))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             FreeStatus.entries.forEach {
-                UnitFilterChip(it.zh, it.value == viewModel.task.base.requestNovels.isfree) {
-                    viewModel.task =
-                        viewModel.task.copy(
-                            base = viewModel.task.base.copy(
-                                requestNovels = viewModel.task.base.requestNovels.copy(
+                UnitFilterChip(it.zh, it.value == sfViewModel.task.base.requestNovels.isfree) {
+                    sfViewModel.task =
+                        sfViewModel.task.copy(
+                            base = sfViewModel.task.base.copy(
+                                requestNovels = sfViewModel.task.base.requestNovels.copy(
                                     isfree = it.value
                                 )
                             )
@@ -331,11 +333,11 @@ fun StateOption(viewModel: SFViewModel) {
         Text(stringResource(R.string.option_sf_9))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             UpdatedDate.entries.forEach {
-                UnitFilterChip(it.zh, it.value == viewModel.task.base.requestNovels.updatedays) {
-                    viewModel.task =
-                        viewModel.task.copy(
-                            base = viewModel.task.base.copy(
-                                requestNovels = viewModel.task.base.requestNovels.copy(
+                UnitFilterChip(it.zh, it.value == sfViewModel.task.base.requestNovels.updatedays) {
+                    sfViewModel.task =
+                        sfViewModel.task.copy(
+                            base = sfViewModel.task.base.copy(
+                                requestNovels = sfViewModel.task.base.requestNovels.copy(
                                     updatedays = it.value
                                 )
                             )
@@ -349,14 +351,14 @@ fun StateOption(viewModel: SFViewModel) {
             CharCount.entries.forEach {
                 UnitFilterChip(
                     it.zh, it == CharCount.fromValue(
-                        viewModel.task.base.requestNovels.beginCount,
-                        viewModel.task.base.requestNovels.endCount
+                        sfViewModel.task.base.requestNovels.beginCount,
+                        sfViewModel.task.base.requestNovels.endCount
                     )
                 ) {
-                    viewModel.task =
-                        viewModel.task.copy(
-                            base = viewModel.task.base.copy(
-                                requestNovels = viewModel.task.base.requestNovels.copy(
+                    sfViewModel.task =
+                        sfViewModel.task.copy(
+                            base = sfViewModel.task.base.copy(
+                                requestNovels = sfViewModel.task.base.requestNovels.copy(
                                     beginCount = it.beginCount,
                                     endCount = it.endCount
                                 )
