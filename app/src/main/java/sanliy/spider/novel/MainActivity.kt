@@ -1,6 +1,7 @@
 package sanliy.spider.novel
 
 import android.Manifest
+import android.content.pm.PermissionInfo
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -33,7 +34,7 @@ class MainActivity : ComponentActivity() {
                 arrayOf(
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
                     Manifest.permission.READ_EXTERNAL_STORAGE
-                ), 1
+                ), PermissionInfo.PROTECTION_DANGEROUS
             )
         }
 
