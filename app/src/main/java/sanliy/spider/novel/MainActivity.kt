@@ -10,7 +10,7 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -60,7 +60,7 @@ fun MainNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     startDestination: String = Screen.HOME.route,
-    viewModel: MainViewModel = viewModel(),
+    viewModel: MainViewModel = hiltViewModel(),
 ) {
     NavHost(
         modifier = modifier,
@@ -68,9 +68,9 @@ fun MainNavHost(
         startDestination = startDestination
     ) {
         composable(Screen.HOME.route) { HomeScreen(navController) }
-        composable(Screen.OPTION_SF.route) { OptionSF(navController) }
-        composable(Screen.HISTORY.route) { HistoryScreen(navController) }
-        composable(Screen.MARK.route) { MarkScreen(navController) }
+        composable(Screen.OPTION_SF.route) { OptionSF(navController, viewModel) }
+        composable(Screen.HISTORY.route) { HistoryScreen(navController, viewModel) }
+        composable(Screen.MARK.route) { MarkScreen(navController, viewModel) }
         composable(Screen.SPIDER.route) { CrawlerScreen(navController, viewModel) }
     }
 }

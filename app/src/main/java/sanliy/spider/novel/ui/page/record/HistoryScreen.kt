@@ -14,17 +14,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import sanliy.spider.novel.MainViewModel
 import sanliy.spider.novel.Screen
-import sanliy.spider.novel.ui.page.unit.TextWithPressTopBar
+import sanliy.spider.novel.ui.page.TextWithPressTopBar
 
 
 @Composable
 fun HistoryScreen(
-    navController: NavHostController = rememberNavController(),
+    navController: NavHostController,
+    mainViewModel: MainViewModel,
 ) {
     val recordViewModel: RecordViewModel = hiltViewModel()
-    val tasks = recordViewModel.db.taskDao().getTasks().collectAsState(listOf())
+    val tasks = recordViewModel.tasks.collectAsState(listOf())
     Scaffold(Modifier.fillMaxSize(),
         {
             TextWithPressTopBar(
@@ -48,7 +49,7 @@ fun HistoryScreen(
                     task,
                     false,
                     navController,
-                    recordViewModel = recordViewModel
+                    mainViewModel
                 )
             }
         }

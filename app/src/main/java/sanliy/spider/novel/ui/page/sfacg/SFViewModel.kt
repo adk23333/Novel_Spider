@@ -18,11 +18,13 @@ import sanliy.spider.novel.model.Task
 import sanliy.spider.novel.net.sfacg.api.SfacgAPI
 import sanliy.spider.novel.net.sfacg.model.ResultSysTag
 import sanliy.spider.novel.net.sfacg.model.SysTag
-import sanliy.spider.novel.room.NovelsDatabase
+import sanliy.spider.novel.repository.TaskRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class SFViewModel @Inject constructor(val db: NovelsDatabase) : ViewModel() {
+class SFViewModel @Inject constructor(
+    private val taskRepository: TaskRepository,
+) : ViewModel() {
     private val retrofit = SfacgAPI.createSfacgAPI()
 
     var isCrawlerContext by mutableStateOf(false)
@@ -65,7 +67,7 @@ class SFViewModel @Inject constructor(val db: NovelsDatabase) : ViewModel() {
 
     fun insertTask() {
         viewModelScope.launch(Dispatchers.IO) {
-            task.base.id = db.taskDao().insertTaskBase(task.base)
+            task.base.id = taskRepository.insertTaskBase(task.base)
 
             task.systagids.forEachIndexed { index, _ ->
                 task.systagids[index].sysTagTaskId = task.base.id!!
@@ -74,8 +76,8 @@ class SFViewModel @Inject constructor(val db: NovelsDatabase) : ViewModel() {
                 task.notexcludesystagids[index].notexcludesystagTaskId = task.base.id!!
             }
             Log.d(this::class.simpleName, task.toString())
-            db.taskDao().insertSysTag(task.systagids)
-            db.taskDao().insertSysTag(task.notexcludesystagids)
+            taskRepository.insertSysTag(task.systagids)
+            taskRepository.insertSysTag(task.notexcludesystagids)
         }
     }
 

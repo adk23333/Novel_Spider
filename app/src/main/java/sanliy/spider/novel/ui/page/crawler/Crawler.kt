@@ -32,18 +32,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import sanliy.spider.novel.MainViewModel
 import sanliy.spider.novel.R
 import sanliy.spider.novel.Screen
-import sanliy.spider.novel.ui.page.unit.TextWithPressTopBar
+import sanliy.spider.novel.ui.page.TextWithPressTopBar
 import sanliy.spider.novel.ui.theme.Novel_SpiderTheme
 
 
 @Composable
 fun CrawlerScreen(
-    navController: NavHostController = rememberNavController(),
-    mainViewModel: MainViewModel = hiltViewModel(),
+    navController: NavHostController,
+    mainViewModel: MainViewModel,
 ) {
     val crawlerViewModel: CrawlerViewModel = hiltViewModel()
     LaunchedEffect(Unit) {

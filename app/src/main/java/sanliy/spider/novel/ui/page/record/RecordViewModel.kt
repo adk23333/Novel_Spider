@@ -7,36 +7,43 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import sanliy.spider.novel.model.Task
-import sanliy.spider.novel.room.NovelsDatabase
+import sanliy.spider.novel.repository.NovelRepository
+import sanliy.spider.novel.repository.TaskRepository
 import sanliy.spider.novel.share.writeToExcelAndShare
 import javax.inject.Inject
 
 @HiltViewModel
-class RecordViewModel @Inject constructor(val db: NovelsDatabase) : ViewModel() {
+class RecordViewModel @Inject constructor(
+    private val novelRepository: NovelRepository,
+    private val taskRepository: TaskRepository,
+) : ViewModel() {
+
+    val tasks by lazy { taskRepository.getTasks() }
+    val markTasks by lazy { taskRepository.getMarkTasks() }
 
     fun delete(task: Task) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.taskDao().updateTask(task.base.copy(isDelete = true))
-            db.sfNovelsDao().delete(task.base.id!!)
+            taskRepository.updateTask(task.base.copy(isDelete = true))
+            novelRepository.deleteWithTask(task)
 
-            val ids = db.taskDao().getDeleteTasksId()
+            val ids = taskRepository.getDeleteTasksId()
             ids.forEach {
-                db.taskDao().deleteSysTags(it)
+                taskRepository.deleteSysTags(it)
             }
-            db.taskDao().deleteTasks()
+            taskRepository.deleteTasks()
 
         }
     }
 
     fun switchIsMark(task: Task) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.taskDao().updateTask(task.base.copy(isMark = !task.base.isMark))
+            taskRepository.updateTask(task.base.copy(isMark = !task.base.isMark))
         }
     }
 
     fun writeExcel(context: Context, task: Task) {
         viewModelScope.launch(Dispatchers.IO) {
-            val novels = db.sfNovelsDao().getTaskNovels(task.base.id!!)
+            val novels = novelRepository.getWithTask(task)
             writeToExcelAndShare(task, context, novels)
         }
     }

@@ -22,12 +22,16 @@ import sanliy.spider.novel.model.DbSfNovel
 import sanliy.spider.novel.model.Task
 import sanliy.spider.novel.net.sfacg.api.SfacgAPI
 import sanliy.spider.novel.net.sfacg.model.ResultSysTag
-import sanliy.spider.novel.room.NovelsDatabase
+import sanliy.spider.novel.repository.NovelRepository
+import sanliy.spider.novel.repository.TaskRepository
 import sanliy.spider.novel.share.writeToExcelAndShare
 import javax.inject.Inject
 
 @HiltViewModel
-class CrawlerViewModel @Inject constructor(val db: NovelsDatabase) : ViewModel() {
+class CrawlerViewModel @Inject constructor(
+    private val novelRepository: NovelRepository,
+    private val taskRepository: TaskRepository,
+) : ViewModel() {
     private val retrofit = SfacgAPI.createSfacgAPI()
     var task by mutableStateOf(Task(null))
     val export = mutableStateOf(false)
@@ -71,7 +75,7 @@ class CrawlerViewModel @Inject constructor(val db: NovelsDatabase) : ViewModel()
                                         showData =
                                             "$showData${novel.novelName}  BY： ${novel.authorName}\n"
                                     }
-                                    db.sfNovelsDao().insertAll(newData)
+                                    novelRepository.insert(*newData.toTypedArray())
                                     mutex.withLock {
                                         if (novelsStateFlow.value.length > 10000) {
                                             novelsStateFlow.value =
@@ -124,7 +128,7 @@ class CrawlerViewModel @Inject constructor(val db: NovelsDatabase) : ViewModel()
 
     fun insertTask() {
         viewModelScope.launch(Dispatchers.IO) {
-            task.base.id = db.taskDao().insertTaskBase(task.base)
+            task.base.id = taskRepository.insertTaskBase(task.base)
 
             task.systagids.forEachIndexed { index, _ ->
                 task.systagids[index].sysTagTaskId = task.base.id!!
@@ -133,14 +137,14 @@ class CrawlerViewModel @Inject constructor(val db: NovelsDatabase) : ViewModel()
                 task.notexcludesystagids[index].notexcludesystagTaskId = task.base.id!!
             }
             Log.d(this::class.simpleName, task.toString())
-            db.taskDao().insertSysTag(task.systagids)
-            db.taskDao().insertSysTag(task.notexcludesystagids)
+            taskRepository.insertSysTag(task.systagids)
+            taskRepository.insertSysTag(task.notexcludesystagids)
         }
     }
 
     fun shareToExcel(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
-            val novels = db.sfNovelsDao().getTaskNovels(task.base.id!!)
+            val novels = novelRepository.getWithTask(task)
             writeToExcelAndShare(task, context, novels)
         }
     }

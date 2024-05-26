@@ -12,9 +12,6 @@ interface SfNovelsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(vararg novels: DbSfNovel)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(novels: List<DbSfNovel>)
-
     @Transaction
     @Query("DELETE FROM novels WHERE taskId == :taskId")
     suspend fun delete(taskId: Long)

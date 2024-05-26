@@ -57,7 +57,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -73,11 +72,14 @@ import sanliy.spider.novel.net.sfacg.model.NovelsType
 import sanliy.spider.novel.net.sfacg.model.SysTag
 import sanliy.spider.novel.net.sfacg.model.UpdatedDate
 import sanliy.spider.novel.tripleSwitch
-import sanliy.spider.novel.ui.page.unit.TextWithPressTopBar
-import sanliy.spider.novel.ui.page.unit.UnitFilterChip
+import sanliy.spider.novel.ui.page.TextWithPressTopBar
+import sanliy.spider.novel.ui.page.UnitFilterChip
 
 @Composable
-fun OptionSF(navController: NavHostController = rememberNavController()) {
+fun OptionSF(
+    navController: NavHostController,
+    mainViewModel: MainViewModel,
+) {
     Scaffold(
         Modifier.fillMaxSize(),
         topBar = {
@@ -85,15 +87,15 @@ fun OptionSF(navController: NavHostController = rememberNavController()) {
                 stringResource(Screen.OPTION_SF.stringId),
                 { navController.popBackStack() })
         }) {
-        OptionSFContext(it, navController)
+        OptionSFContext(it, navController, mainViewModel)
     }
 }
 
 @Composable
 fun OptionSFContext(
     paddingValues: PaddingValues,
-    navController: NavHostController = rememberNavController(),
-    mainViewModel: MainViewModel = hiltViewModel(),
+    navController: NavHostController,
+    mainViewModel: MainViewModel,
     sfViewModel: SFViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current

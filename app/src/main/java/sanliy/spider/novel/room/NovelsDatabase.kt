@@ -19,9 +19,8 @@ import javax.inject.Singleton
     exportSchema = false
 )
 abstract class NovelsDatabase : RoomDatabase() {
-
-
     abstract fun sfNovelsDao(): SfNovelsDao
+
     abstract fun taskDao(): TaskDao
 
     companion object {
@@ -42,5 +41,15 @@ class NovelsDatabaseModule {
             NovelsDatabase::class.java,
             NovelsDatabase.DATABASE_NAME
         ).build()
+    }
+
+    @Provides
+    fun provideNovelDao(ndb: NovelsDatabase): SfNovelsDao {
+        return ndb.sfNovelsDao()
+    }
+
+    @Provides
+    fun provideTaskDao(ndb: NovelsDatabase): TaskDao {
+        return ndb.taskDao()
     }
 }

@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package sanliy.spider.novel.ui.page.unit
+package sanliy.spider.novel.ui.page
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons

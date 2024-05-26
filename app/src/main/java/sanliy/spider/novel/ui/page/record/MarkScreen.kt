@@ -15,14 +15,18 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import sanliy.spider.novel.MainViewModel
 import sanliy.spider.novel.Screen
-import sanliy.spider.novel.ui.page.unit.TextWithPressTopBar
+import sanliy.spider.novel.ui.page.TextWithPressTopBar
 
 
 @Composable
-fun MarkScreen(navController: NavHostController = rememberNavController()) {
+fun MarkScreen(
+    navController: NavHostController = rememberNavController(),
+    mainViewModel: MainViewModel = hiltViewModel(),
+) {
     val viewModel: RecordViewModel = hiltViewModel()
-    val tasks = viewModel.db.taskDao().getMarkTasks().collectAsState(listOf())
+    val tasks = viewModel.markTasks.collectAsState(listOf())
     Scaffold(
         Modifier.fillMaxSize(),
         topBar = {
@@ -44,7 +48,8 @@ fun MarkScreen(navController: NavHostController = rememberNavController()) {
                     index,
                     task,
                     true,
-                    navController
+                    navController,
+                    mainViewModel
                 )
             }
         }

@@ -45,8 +45,8 @@ fun TaskCard(
     index: Int,
     task: Task,
     isMarkScreen: Boolean,
-    navController: NavHostController = rememberNavController(),
-    mainViewModel: MainViewModel = hiltViewModel(),
+    navController: NavHostController,
+    mainViewModel: MainViewModel,
     recordViewModel: RecordViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -152,7 +152,8 @@ fun TaskCardPreview() {
                 .padding(16.dp, 8.dp)
                 .wrapContentHeight()
                 .fillMaxWidth(),
-            index = 0, task = Task(1), false
+            index = 0, task = Task(1), false,
+            rememberNavController(), hiltViewModel()
         )
     }
 }
