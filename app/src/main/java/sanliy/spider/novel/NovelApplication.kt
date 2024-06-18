@@ -8,7 +8,16 @@ import dagger.hilt.android.HiltAndroidApp
 import dagger.hilt.components.SingletonComponent
 
 @HiltAndroidApp
-class NovelApplication : Application() {}
+class NovelApplication : Application() {
+    companion object {
+        lateinit var instance: NovelApplication
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        instance = this
+    }
+}
 
 @Module
 @InstallIn(SingletonComponent::class)

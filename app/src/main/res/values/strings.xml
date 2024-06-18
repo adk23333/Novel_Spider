@@ -6,7 +6,7 @@
     <string name="home_ciweimao">刺猬猫</string>
     <string name="option_sf">爬虫配置</string>
     <string name="option_sf_task_name">任务名称</string>
-    <string name="option_sf_1">待爬取标签</string>
+    <string name="option_sf_1">标签</string>
     <string name="option_sf_2">选取页码</string>
     <string name="option_sf_3">vvv 点击查看更多 vvv</string>
     <string name="option_sf_4">起始: </string>
@@ -21,6 +21,7 @@
     <string name="option_sf_13">任务名称或标签不能为空</string>
     <string name="option_sf_14">配置已保存</string>
     <string name="option_sf_15">作品类型</string>
+    <string name="option_sf_16">反选标签</string>
     <string name="spider_sf">运行</string>
     <string name="spider_sf_1">开始爬取</string>
     <string name="spider_sf_2">分享</string>

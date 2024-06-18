@@ -1,8 +1,5 @@
 package sanliy.spider.novel.ui.page.sfacg
 
-import android.content.Context
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,76 +7,92 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
-import sanliy.spider.novel.model.Task
-import sanliy.spider.novel.net.sfacg.api.SfacgAPI
-import sanliy.spider.novel.net.sfacg.model.ResultSysTag
-import sanliy.spider.novel.net.sfacg.model.SysTag
+import sanliy.spider.novel.UiState
+import sanliy.spider.novel.model.NovelPlatform
+import sanliy.spider.novel.net.sfacg.NovelType
+import sanliy.spider.novel.net.sfacg.SysTag
+import sanliy.spider.novel.repository.GenreRepository
+import sanliy.spider.novel.repository.TagRepository
 import sanliy.spider.novel.repository.TaskRepository
+import sanliy.spider.novel.room.model.Genre
+import sanliy.spider.novel.room.model.SfacgNovelListTask
+import sanliy.spider.novel.room.model.Tag
 import javax.inject.Inject
 
 @HiltViewModel
 class SFViewModel @Inject constructor(
     private val taskRepository: TaskRepository,
+    private val tagRepository: TagRepository,
+    private val genreRepository: GenreRepository,
 ) : ViewModel() {
-    private val retrofit = SfacgAPI.createSfacgAPI()
-
-    var isCrawlerContext by mutableStateOf(false)
-    var refreshTags by mutableStateOf(false)
-    var task by mutableStateOf(Task(null))
-
-    var tagsStateFlow = MutableStateFlow<List<SysTag>>(listOf())
-
-    fun getSysTags(context: Context) {
-        viewModelScope.launch(Dispatchers.IO) {
-            refreshTags = true
-            tagsStateFlow.runCatching {
-                retrofit.getSysTags(0)
-            }.onSuccess {
-                if (it.isSuccessful) {
-                    tagsStateFlow.emit(it.body()!!.data)
-                } else {
-                    it.errorBody()?.let { responseBody ->
-                        val error = Json.decodeFromString<ResultSysTag>(responseBody.toString())
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(
-                                context,
-                                "${error.status.httpCode},${error.status.errorCode}:${error.status.msg}",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                        Log.d(this@SFViewModel::class.simpleName, responseBody.toString())
-                    }
-                }
-            }.onFailure {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
-                }
-                Log.w(this@SFViewModel::class.simpleName, it.toString())
+    var taskState by mutableStateOf(SfacgNovelListTask(null))
+    suspend fun getSfacgGenres(): UiState<List<NovelType>> {
+        return genreRepository.getSfacgGenres().fold(
+            onSuccess = {
+                val data = it.data.toMutableList()
+                data.add(0, NovelType(0, "全部", null))
+                UiState.Success(data)
+            },
+            onFailure = {
+                UiState.Failure(it)
             }
-            refreshTags = false
-        }
-
+        )
     }
 
-    fun insertTask() {
-        viewModelScope.launch(Dispatchers.IO) {
-            task.base.id = taskRepository.insertTaskBase(task.base)
+    suspend fun getSysTags(): UiState<List<SysTag>> {
+        return tagRepository.getSysTags(0).fold(
+            onSuccess = {
+                UiState.Success(it.data)
+            },
+            onFailure = {
+                UiState.Failure(it)
+            }
+        )
+    }
 
-            task.systagids.forEachIndexed { index, _ ->
-                task.systagids[index].sysTagTaskId = task.base.id!!
+    fun getTags(vararg sysTagID: String): Flow<List<Tag>> {
+        return tagRepository.getWithSfacgAndID(*sysTagID)
+    }
+
+
+    fun setTags(vararg sysTag: SysTag) {
+        viewModelScope.launch(Dispatchers.IO) {
+            sysTag.forEach {
+                tagRepository.insertTag(
+                    Tag(
+                        it.sysTagId.toString(),
+                        NovelPlatform.SFACG,
+                        it.tagName
+                    )
+                )
             }
-            task.notexcludesystagids.forEachIndexed { index, _ ->
-                task.notexcludesystagids[index].notexcludesystagTaskId = task.base.id!!
-            }
-            Log.d(this::class.simpleName, task.toString())
-            taskRepository.insertSysTag(task.systagids)
-            taskRepository.insertSysTag(task.notexcludesystagids)
+
         }
     }
 
+    fun setGenres(vararg genre: NovelType) {
+        viewModelScope.launch(Dispatchers.IO) {
+            genre.forEach {
+                genreRepository.insertGenre(
+                    Genre(
+                        it.typeId.toString(),
+                        NovelPlatform.SFACG,
+                        it.typeName
+                    )
+                )
+            }
+        }
+    }
+
+    fun getGenreName(genreID: String): Flow<Genre> {
+        return genreRepository.getSfacgGenre(genreID)
+    }
+
+
+    fun insertTask(task: SfacgNovelListTask): Long {
+        return taskRepository.insertSfacgNLT(task)
+    }
 
 }

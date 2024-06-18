@@ -4,8 +4,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import sanliy.spider.novel.model.Task
+import sanliy.spider.novel.room.model.SfacgNovelListTask
 
 class MainViewModel : ViewModel() {
-    var task by mutableStateOf(Task(null))
+    var task by mutableStateOf(SfacgNovelListTask(null))
 }

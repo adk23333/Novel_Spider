@@ -1,29 +1,26 @@
 package sanliy.spider.novel.ui.page.crawler
 
-import android.content.Context
 import android.util.Log
-import android.widget.Toast
+import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
-import sanliy.spider.novel.model.DbSfNovel
-import sanliy.spider.novel.model.Task
-import sanliy.spider.novel.net.sfacg.api.SfacgAPI
-import sanliy.spider.novel.net.sfacg.model.ResultSysTag
 import sanliy.spider.novel.repository.NovelRepository
 import sanliy.spider.novel.repository.TaskRepository
+import sanliy.spider.novel.room.model.SfacgNovel
+import sanliy.spider.novel.room.model.SfacgNovelListTask
 import sanliy.spider.novel.share.writeToExcelAndShare
 import javax.inject.Inject
 
@@ -32,120 +29,73 @@ class CrawlerViewModel @Inject constructor(
     private val novelRepository: NovelRepository,
     private val taskRepository: TaskRepository,
 ) : ViewModel() {
-    private val retrofit = SfacgAPI.createSfacgAPI()
-    var task by mutableStateOf(Task(null))
-    val export = mutableStateOf(false)
+    private val mutex = Mutex()
+    private var page = 1
+    private var isLastPage = false       //记录返回的空数据数量
+    var threadCount by mutableIntStateOf(2)
 
-    val novelsStateFlow = MutableStateFlow("准备开始...")
+    var export by mutableStateOf(false)
+    private val logSizeLimit = 10000
+    var logSize by mutableIntStateOf(2)
+    val logs = mutableStateListOf("准备开始...")
+    var state = ScrollState(0)
 
-    fun getNovels(context: Context) {
-        val mutex = Mutex()
-        var page = 1
-        var blankData = 0       //记录返回的空数据数量
+    fun finishTask(task: SfacgNovelListTask) {
         viewModelScope.launch {
-            while (blankData == 0) {
-                val jobs = mutableListOf<Job>()
-                repeat(100) {
-                    val job = CoroutineScope(Dispatchers.IO).launch {
-                        novelsStateFlow.runCatching {
-                            var map: Map<String, String>
-                            mutex.withLock {
-                                map = task.toMap(page)
-                                page++
-                            }
-                            retrofit.getNovels(task.base.requestNovels.type, map)
-
-                        }.onSuccess {
-                            if (it.isSuccessful) {
-                                val data = it.body()!!.data
-                                mutex.withLock {
-                                    Log.d(this@CrawlerViewModel::class.simpleName, data.toString())
-                                }
-
-                                if (data.isEmpty()) {
-                                    mutex.withLock {
-                                        blankData++
-                                    }
-                                } else {
-                                    val newData = mutableListOf<DbSfNovel>()
-                                    var showData = ""
-
-                                    data.forEach { novel ->
-                                        newData.add(DbSfNovel(task.base.id!!, novel))
-                                        showData =
-                                            "$showData${novel.novelName}  BY： ${novel.authorName}\n"
-                                    }
-                                    novelRepository.insert(*newData.toTypedArray())
-                                    mutex.withLock {
-                                        if (novelsStateFlow.value.length > 10000) {
-                                            novelsStateFlow.value =
-                                                novelsStateFlow.value.substring(5000)
-                                        }
-                                        novelsStateFlow.emit("${novelsStateFlow.value}已爬取以下书籍：\n$showData")
-                                    }
-                                }
-                            } else {
-                                it.errorBody()?.let { responseBody ->
-                                    val error =
-                                        Json.decodeFromString<ResultSysTag>(responseBody.toString())
-                                    mutex.withLock {
-                                        withContext(Dispatchers.Main) {
-                                            Toast.makeText(
-                                                context,
-                                                "${error.status.httpCode},${error.status.errorCode}:${error.status.msg}",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-
-                                        }
-                                        Log.d(
-                                            this@CrawlerViewModel::class.simpleName,
-                                            responseBody.toString()
-                                        )
-                                    }
-                                }
-                            }
-                        }.onFailure {
-                            mutex.withLock {
-                                withContext(Dispatchers.Main) {
-                                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
-                                }
-                                Log.d(
-                                    this@CrawlerViewModel::class.simpleName, it.message.toString()
-                                )
-                            }
-                        }
+            val jobs = mutableListOf<Job>()
+            repeat(threadCount) {
+                val job = viewModelScope.launch(Dispatchers.IO) {
+                    while (!isLastPage) {
+                        runJob(task)
                     }
-                    jobs.add(job)
                 }
-                jobs.forEach {
-                    it.join()
-                }
+                jobs.add(job)
             }
-            export.value = true
-        }
-
-    }
-
-    fun insertTask() {
-        viewModelScope.launch(Dispatchers.IO) {
-            task.base.id = taskRepository.insertTaskBase(task.base)
-
-            task.systagids.forEachIndexed { index, _ ->
-                task.systagids[index].sysTagTaskId = task.base.id!!
+            jobs.forEach {
+                it.join()
             }
-            task.notexcludesystagids.forEachIndexed { index, _ ->
-                task.notexcludesystagids[index].notexcludesystagTaskId = task.base.id!!
-            }
-            Log.d(this::class.simpleName, task.toString())
-            taskRepository.insertSysTag(task.systagids)
-            taskRepository.insertSysTag(task.notexcludesystagids)
+            export = true
         }
     }
 
-    fun shareToExcel(context: Context) {
+    private suspend fun runJob(task: SfacgNovelListTask) {
+        mutex.withLock {
+            page++
+        }
+        runCatching {
+            novelRepository.getNovels(page, task)
+        }.onSuccess {
+            if (it.data.isEmpty()) {
+                mutex.withLock {
+                    isLastPage = true
+                }
+            } else {
+                val novels = mutableListOf<SfacgNovel>()
+                it.data.forEach { novel ->
+                    novels.add(novel.toSfacgNovel(task))
+                    mutex.withLock {
+                        if (logs.size > logSizeLimit) {
+                            logs.removeFirst()
+                        }
+                        logs.add("《${novel.novelName}》—— ${novel.authorName}")
+                        logSize++
+                    }
+                }
+                novelRepository.insertSfacg(*novels.toTypedArray())
+            }
+        }.onFailure {
+            Log.d(this@CrawlerViewModel::class.simpleName, it.toString())
+        }
+    }
+
+    fun getTask(taskID: Long): Flow<SfacgNovelListTask> {
+        return taskRepository.getTaskByID(taskID).filterNotNull()
+    }
+
+    fun shareToExcel(task: SfacgNovelListTask) {
         viewModelScope.launch(Dispatchers.IO) {
-            val novels = novelRepository.getWithTask(task)
-            writeToExcelAndShare(task, context, novels)
+            val novels = novelRepository.getSfacgWithTask(task)
+            writeToExcelAndShare(task, novels)
         }
     }
 }

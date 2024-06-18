@@ -12,9 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
 import sanliy.spider.novel.ui.page.HomeScreen
 import sanliy.spider.novel.ui.page.crawler.CrawlerScreen
@@ -68,10 +70,18 @@ fun MainNavHost(
         startDestination = startDestination
     ) {
         composable(Screen.HOME.route) { HomeScreen(navController) }
-        composable(Screen.OPTION_SF.route) { OptionSF(navController, viewModel) }
+        composable(Screen.OPTION_SF.route) { OptionSF(navController) }
         composable(Screen.HISTORY.route) { HistoryScreen(navController, viewModel) }
         composable(Screen.MARK.route) { MarkScreen(navController, viewModel) }
-        composable(Screen.SPIDER.route) { CrawlerScreen(navController, viewModel) }
+        composable(
+            "${Screen.SPIDER.route}?taskID={taskID}",
+            arguments = listOf(
+                navArgument("taskID") { defaultValue = 0L; type = NavType.LongType },
+            )
+        ) { navBackStackEntry ->
+            val taskID = navBackStackEntry.arguments?.getLong("taskID") ?: 0L
+            CrawlerScreen(navController, taskID)
+        }
     }
 }
 

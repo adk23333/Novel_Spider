@@ -11,12 +11,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import sanliy.spider.novel.model.DbSfNovel
-import sanliy.spider.novel.model.Task
+import sanliy.spider.novel.NovelApplication
+import sanliy.spider.novel.room.model.SfacgNovel
+import sanliy.spider.novel.room.model.SfacgNovelListTask
 import java.io.File
 
-suspend fun writeToExcelAndShare(task: Task, context: Context, novels: List<DbSfNovel>) {
-    val fileName = "ID-${task.base.id}-${task.base.name}.xlsx"
+suspend fun writeToExcelAndShare(task: SfacgNovelListTask, novels: List<SfacgNovel>) {
+    val context = NovelApplication.instance.applicationContext
+    val fileName = "ID-${task.taskID}-${task.taskName}.xlsx"
     val documentPath =
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
     val path = "$documentPath/${context.packageName}"
@@ -34,7 +36,7 @@ suspend fun writeToExcelAndShare(task: Task, context: Context, novels: List<DbSf
     shareExcel(context, file)
 }
 
-fun writeNovelsToExcel(novels: List<DbSfNovel>, filePath: String) {
+fun writeNovelsToExcel(novels: List<SfacgNovel>, filePath: String) {
     workbook {
         sheet {
             row {
@@ -66,15 +68,14 @@ fun writeNovelsToExcel(novels: List<DbSfNovel>, filePath: String) {
                     cell(it.signStatus)
                     cell(it.novelCover)
                     cell(it.lastUpdateTime)
-                    cell(it.typeName)
+                    cell(it.genreID)
                     cell(it.bgBanner)
                     cell(it.point)
-                    cell(it.addTime)
+                    cell(it.createdTime)
                     cell(it.isSensitive)
-                    cell(it.tag1.toString())
-                    cell(it.tag2.toString())
-                    cell(it.tag3.toString())
-                    cell(it.tag4.toString())
+                    it.tags.split(",").forEach {
+                        cell(it)
+                    }
                 }
             }
         }

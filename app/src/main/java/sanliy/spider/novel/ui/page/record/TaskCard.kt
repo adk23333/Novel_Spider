@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,29 +29,23 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import sanliy.spider.novel.MainViewModel
 import sanliy.spider.novel.Screen
-import sanliy.spider.novel.model.APP
-import sanliy.spider.novel.model.Task
-import sanliy.spider.novel.net.sfacg.model.CharCount
-import sanliy.spider.novel.net.sfacg.model.FinishedStatus
-import sanliy.spider.novel.net.sfacg.model.FreeStatus
-import sanliy.spider.novel.net.sfacg.model.NovelsType
-import sanliy.spider.novel.net.sfacg.model.UpdatedDate
+import sanliy.spider.novel.net.sfacg.CharCount
+import sanliy.spider.novel.room.model.SfacgNovelListTask
 import sanliy.spider.novel.ui.theme.Novel_SpiderTheme
 
 @Composable
 fun TaskCard(
     modifier: Modifier = Modifier,
     index: Int,
-    task: Task,
+    task: SfacgNovelListTask,
     isMarkScreen: Boolean,
     navController: NavHostController,
     mainViewModel: MainViewModel,
     recordViewModel: RecordViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
     Surface(
         onClick = {
-            mainViewModel.task = task.copy(base = task.base.copy(id = null, isMark = false))
+            mainViewModel.task = task.copy(taskID = null, isMark = false)
             navController.navigate(Screen.SPIDER.route)
         },
         modifier,
@@ -69,39 +62,37 @@ fun TaskCard(
         ) {
 
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
-                Text("${index + 1}. ${task.base.name}")
+                Text("${index + 1}. ${task.taskName}")
                 Surface(
                     color = MaterialTheme.colorScheme.errorContainer,
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text(APP.valueOf(task.base.app).zh, Modifier.padding(4.dp))
+                    Text(task.platform.zh, Modifier.padding(4.dp))
                 }
             }
             Text(
-                "页码：${task.base.start}->${if (task.base.end == 0) "∞" else task.base.end}  "
+                "页码：${task.startPage}->${if (task.endCount == 0) "∞" else task.endCount}  "
                         + "字数：${
                     CharCount.fromValue(
-                        task.base.requestNovels.beginCount,
-                        task.base.requestNovels.endCount
+                        task.beginCount,
+                        task.endCount
                     ).zh
                 }  "
-                        + "类型：${NovelsType.fromValue(task.base.requestNovels.type).zh}"
+                        + "类型：${task.genreID}"
             )
             HorizontalDivider()
             Text(
                 "完结：${
-                    FinishedStatus.fromValue(task.base.requestNovels.isfinish).zh
-                }  签约：${FreeStatus.fromValue(task.base.requestNovels.isfree).zh}  最近更新：${
-                    UpdatedDate.fromValue(task.base.requestNovels.updatedays).zh
+                    task.isFinish.zh
+                }  签约：${task.isFree.zh}  最近更新：${
+                    task.updateDate.zh
                 }"
             )
             Text("标签：${
-                if (task.systagids.isEmpty()) "不限"
-                else task.systagids.joinToString { it.tagName }
+                task.tags.ifEmpty { "不限" }
             }")
             Text("禁用：${
-                if (task.notexcludesystagids.isEmpty()) "不限"
-                else task.notexcludesystagids.joinToString { it.tagName }
+                task.antiTags.ifEmpty { "不限" }
             }")
             HorizontalDivider()
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
@@ -128,11 +119,11 @@ fun TaskCard(
                     Icon(
                         Icons.Filled.Star,
                         null,
-                        tint = if (task.base.isMark) Color.Yellow else Color.Gray
+                        tint = if (task.isMark) Color.Yellow else Color.Gray
                     )
                 }
                 Button(
-                    onClick = { recordViewModel.writeExcel(context, task) },
+                    onClick = { recordViewModel.writeExcel(task) },
                     Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
                 ) {
@@ -152,7 +143,7 @@ fun TaskCardPreview() {
                 .padding(16.dp, 8.dp)
                 .wrapContentHeight()
                 .fillMaxWidth(),
-            index = 0, task = Task(1), false,
+            index = 0, task = SfacgNovelListTask(1), false,
             rememberNavController(), hiltViewModel()
         )
     }

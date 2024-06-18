@@ -1,14 +1,13 @@
 package sanliy.spider.novel.ui.page.record
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import sanliy.spider.novel.model.Task
 import sanliy.spider.novel.repository.NovelRepository
 import sanliy.spider.novel.repository.TaskRepository
+import sanliy.spider.novel.room.model.SfacgNovelListTask
 import sanliy.spider.novel.share.writeToExcelAndShare
 import javax.inject.Inject
 
@@ -19,32 +18,28 @@ class RecordViewModel @Inject constructor(
 ) : ViewModel() {
 
     val tasks by lazy { taskRepository.getTasks() }
-    val markTasks by lazy { taskRepository.getMarkTasks() }
+    val markTasks by lazy { taskRepository.getMarkedTasks() }
 
-    fun delete(task: Task) {
+    fun delete(task: SfacgNovelListTask) {
         viewModelScope.launch(Dispatchers.IO) {
-            taskRepository.updateTask(task.base.copy(isDelete = true))
-            novelRepository.deleteWithTask(task)
+            taskRepository.updateTask(task.copy(isDelete = true))
+            novelRepository.deleteSfacgForTask(task)
 
-            val ids = taskRepository.getDeleteTasksId()
-            ids.forEach {
-                taskRepository.deleteSysTags(it)
-            }
-            taskRepository.deleteTasks()
+            taskRepository.deleteExpiredTasks()
 
         }
     }
 
-    fun switchIsMark(task: Task) {
+    fun switchIsMark(task: SfacgNovelListTask) {
         viewModelScope.launch(Dispatchers.IO) {
-            taskRepository.updateTask(task.base.copy(isMark = !task.base.isMark))
+            taskRepository.updateTask(task.copy(isMark = !task.isMark))
         }
     }
 
-    fun writeExcel(context: Context, task: Task) {
+    fun writeExcel(task: SfacgNovelListTask) {
         viewModelScope.launch(Dispatchers.IO) {
-            val novels = novelRepository.getWithTask(task)
-            writeToExcelAndShare(task, context, novels)
+            val novels = novelRepository.getSfacgWithTask(task)
+            writeToExcelAndShare(task, novels)
         }
     }
 }

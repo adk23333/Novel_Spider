@@ -1,22 +1,32 @@
 package sanliy.spider.novel.repository
 
-import sanliy.spider.novel.model.DbSfNovel
-import sanliy.spider.novel.model.Task
-import sanliy.spider.novel.room.SfNovelsDao
+import io.ktor.client.call.body
+import sanliy.spider.novel.net.sfacg.ResponseNovels
+import sanliy.spider.novel.net.sfacg.SfacgService
+import sanliy.spider.novel.room.SfacgNovelDao
+import sanliy.spider.novel.room.model.SfacgNovel
+import sanliy.spider.novel.room.model.SfacgNovelListTask
 import javax.inject.Inject
 
 
-class NovelRepository @Inject constructor(private val novelDao: SfNovelsDao) {
+class NovelRepository @Inject constructor(
+    private val sfacgNovelDao: SfacgNovelDao,
+    private val sfacgService: SfacgService,
+) {
 
-    suspend fun insert(vararg novels: DbSfNovel) {
-        novelDao.insert(*novels)
+    suspend fun insertSfacg(vararg novels: SfacgNovel) {
+        sfacgNovelDao.insert(*novels)
     }
 
-    suspend fun deleteWithTask(task: Task) {
-        novelDao.delete(task.base.id!!)
+    suspend fun deleteSfacgForTask(task: SfacgNovelListTask) {
+        sfacgNovelDao.deleteForTask(task.taskID!!)
     }
 
-    suspend fun getWithTask(task: Task): List<DbSfNovel> {
-        return novelDao.getTaskNovels(task.base.id!!)
+    suspend fun getSfacgWithTask(task: SfacgNovelListTask): List<SfacgNovel> {
+        return sfacgNovelDao.getWithTask(task.taskID!!)
+    }
+
+    suspend fun getNovels(novelsType: Int, task: SfacgNovelListTask): ResponseNovels {
+        return sfacgService.getNovels(novelsType, task).body()
     }
 }

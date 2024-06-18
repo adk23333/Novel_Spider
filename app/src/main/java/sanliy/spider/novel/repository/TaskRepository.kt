@@ -1,45 +1,51 @@
 package sanliy.spider.novel.repository
 
 import kotlinx.coroutines.flow.Flow
-import sanliy.spider.novel.model.Task
-import sanliy.spider.novel.net.sfacg.model.SysTag
-import sanliy.spider.novel.room.TaskDao
+import sanliy.spider.novel.room.GenreDao
+import sanliy.spider.novel.room.SfacgTaskDao
+import sanliy.spider.novel.room.TagDao
+import sanliy.spider.novel.room.model.SfacgNovelListTask
+import sanliy.spider.novel.room.model.Tag
 import javax.inject.Inject
 
-class TaskRepository @Inject constructor(private val taskDao: TaskDao) {
+class TaskRepository @Inject constructor(
+    private val sfacgTaskDao: SfacgTaskDao,
+    private val tagDao: TagDao,
+    private val genreDao: GenreDao,
+) {
 
-    fun insertTaskBase(base: Task.Base): Long {
-        return taskDao.insertTaskBase(base)
+    fun insertSfacgNLT(task: SfacgNovelListTask): Long {
+        return sfacgTaskDao.insert(task)
     }
 
-    fun insertSysTag(sysTag: List<SysTag>) {
-        taskDao.insertSysTag(sysTag)
+    suspend fun insertTag(tags: List<Tag>) {
+        tagDao.insert(*tags.toTypedArray())
     }
 
-    fun updateTask(base: Task.Base) {
-        taskDao.updateTask(base)
-    }
-
-
-    fun deleteTasks() {
-        taskDao.deleteTasks()
-    }
-
-
-    fun deleteSysTags(taskId: Long) {
-        taskDao.deleteSysTags(taskId)
-    }
-
-    suspend fun getDeleteTasksId(): List<Long> {
-        return taskDao.getDeleteTasksId()
+    fun updateTask(task: SfacgNovelListTask) {
+        sfacgTaskDao.update(task)
     }
 
 
-    fun getTasks(): Flow<List<Task>> {
-        return taskDao.getTasks()
+    fun deleteExpiredTasks() {
+        sfacgTaskDao.deleteExpiredTasks()
     }
 
-    fun getMarkTasks(): Flow<List<Task>> {
-        return taskDao.getMarkTasks()
+
+    suspend fun deleteTags(tag: Tag) {
+        tagDao.delete(tag)
+    }
+
+
+    fun getTasks(): Flow<List<SfacgNovelListTask>> {
+        return sfacgTaskDao.getTasks()
+    }
+
+    fun getMarkedTasks(): Flow<List<SfacgNovelListTask>> {
+        return sfacgTaskDao.getMarkedTasks()
+    }
+
+    fun getTaskByID(taskID: Long): Flow<SfacgNovelListTask?> {
+        return sfacgTaskDao.getTaskById(taskID)
     }
 }

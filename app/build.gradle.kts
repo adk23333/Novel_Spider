@@ -67,7 +67,7 @@ android {
 
 val uiVersion = "1.6.7"
 val roomVersion = "2.6.1"
-val ktorVersion = "2.3.11"
+val ktorVersion = "3.0.0-beta-1"
 val hiltVersion = "2.51.1"
 
 dependencies {
@@ -95,6 +95,9 @@ dependencies {
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    implementation("io.ktor:ktor-client-logging:$ktorVersion")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.0")

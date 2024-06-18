@@ -2,6 +2,7 @@ package sanliy.spider.novel.ui.page.crawler
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,8 +12,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Button
@@ -23,31 +26,34 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import sanliy.spider.novel.MainViewModel
 import sanliy.spider.novel.R
 import sanliy.spider.novel.Screen
+import sanliy.spider.novel.room.model.SfacgNovelListTask
 import sanliy.spider.novel.ui.page.TextWithPressTopBar
 import sanliy.spider.novel.ui.theme.Novel_SpiderTheme
 
+const val TAG = "ui.page.crawler.Crawler"
 
 @Composable
 fun CrawlerScreen(
     navController: NavHostController,
-    mainViewModel: MainViewModel,
+    taskID: Long,
+    crawlerViewModel: CrawlerViewModel = hiltViewModel(),
 ) {
-    val crawlerViewModel: CrawlerViewModel = hiltViewModel()
-    LaunchedEffect(Unit) {
-        crawlerViewModel.task = mainViewModel.task
-    }
+    val task by crawlerViewModel.getTask(taskID).collectAsState(SfacgNovelListTask(null))
     Scaffold(
         Modifier.fillMaxSize(),
         topBar = {
@@ -59,7 +65,7 @@ fun CrawlerScreen(
                 }
             }
         }) {
-        SfCrawlerContext(it, crawlerViewModel)
+        SfCrawlerContext(it, task, crawlerViewModel)
     }
 }
 
@@ -67,11 +73,14 @@ fun CrawlerScreen(
 @Composable
 fun SfCrawlerContext(
     paddingValues: PaddingValues,
+    task: SfacgNovelListTask,
     crawlerViewModel: CrawlerViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
-    val novels = crawlerViewModel.novelsStateFlow.collectAsState()
     val state = ScrollState(0)
+    val logsState = rememberLazyListState()
+    LaunchedEffect(crawlerViewModel.logs.size) {
+        logsState.animateScrollToItem(crawlerViewModel.logs.size - 1)
+    }
     Column(
         Modifier
             .fillMaxWidth()
@@ -87,29 +96,52 @@ fun SfCrawlerContext(
                 .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                novels.value,
+            LazyColumn(
                 Modifier
                     .padding(8.dp)
                     .fillMaxSize()
-                    .verticalScroll(state)
-            )
+                    .horizontalScroll(state),
+                logsState
+            ) {
+
+                items(crawlerViewModel.logs.size) {
+                    Row {
+                        Text(
+                            text = (crawlerViewModel.logSize - crawlerViewModel.logs.size + it).toString(),
+                            modifier = Modifier
+                                .width(60.dp)
+                                .padding(end = 8.dp)
+                                .drawBehind {
+                                    val strokeWidth = 1.dp.toPx()
+                                    val x = size.width - strokeWidth / 2
+                                    drawLine(
+                                        Color.Gray,
+                                        Offset(x, size.height),
+                                        Offset(x, 0f),
+                                        strokeWidth
+                                    )
+                                }
+                                .padding(end = 8.dp),
+                            textAlign = TextAlign.Right,
+                            fontFamily = FontFamily.Monospace
+                        )
+                        Text(text = crawlerViewModel.logs[it])
+                    }
+                }
+            }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            Button(onClick = {
-                if (crawlerViewModel.task.base.id != null) {
-                    if (!crawlerViewModel.task.base.isMark) crawlerViewModel.insertTask()
-                } else
-                    crawlerViewModel.insertTask()
-
-                crawlerViewModel.getNovels(context)
-
-            }, enabled = !crawlerViewModel.export.value) {
+            Button(
+                onClick = { crawlerViewModel.finishTask(task) },
+                enabled = !crawlerViewModel.export
+            ) {
                 Text(text = stringResource(R.string.spider_sf_1))
             }
             Button(
-                onClick = { crawlerViewModel.shareToExcel(context) },
-                enabled = crawlerViewModel.export.value
+                onClick = {
+                    crawlerViewModel.shareToExcel(task)
+                },
+                enabled = crawlerViewModel.export
             ) {
                 Text(text = stringResource(R.string.spider_sf_2))
             }
@@ -124,7 +156,7 @@ fun SfCrawlerContext(
 @Preview(showBackground = true)
 fun SfCrawlerContextPreview() {
     Novel_SpiderTheme {
-        SfCrawlerContext(paddingValues = PaddingValues(0.dp))
+        SfCrawlerContext(paddingValues = PaddingValues(0.dp), SfacgNovelListTask(0))
     }
 }
 
