@@ -37,7 +37,9 @@ class NetworkModule {
             install(Logging) {
                 logger = object : Logger {
                     override fun log(message: String) {
-                        Log.d("NetworkModule", "log: $message")
+                        if (message.startsWith("RESPONSE")) {
+                            Log.d("NetworkModule", "log: $message")
+                        }
                     }
                 }
                 level = LogLevel.BODY
