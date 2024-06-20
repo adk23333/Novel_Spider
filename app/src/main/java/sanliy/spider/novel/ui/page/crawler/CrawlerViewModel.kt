@@ -1,7 +1,6 @@
 package sanliy.spider.novel.ui.page.crawler
 
 import android.util.Log
-import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -31,22 +30,23 @@ class CrawlerViewModel @Inject constructor(
 ) : ViewModel() {
     private val mutex = Mutex()
     private var page = 1
-    private var isLastPage = false       //记录返回的空数据数量
     var threadCount by mutableIntStateOf(2)
 
     var export by mutableStateOf(false)
     private val logSizeLimit = 10000
     var logSize by mutableIntStateOf(2)
     val logs = mutableStateListOf("准备开始...")
-    var state = ScrollState(0)
+
 
     fun finishTask(task: SfacgNovelListTask) {
+        page = task.startPage
         viewModelScope.launch {
             val jobs = mutableListOf<Job>()
             repeat(threadCount) {
                 val job = viewModelScope.launch(Dispatchers.IO) {
-                    while (!isLastPage) {
-                        runJob(task)
+                    while (true) {
+                        val isLastPage = runJob(task) ?: break
+                        if (isLastPage) break
                     }
                 }
                 jobs.add(job)
@@ -58,34 +58,40 @@ class CrawlerViewModel @Inject constructor(
         }
     }
 
-    private suspend fun runJob(task: SfacgNovelListTask) {
+    private suspend fun runJob(task: SfacgNovelListTask): Boolean? {
+        val mPage: Int
         mutex.withLock {
+            mPage = page
             page++
         }
-        runCatching {
-            novelRepository.getNovels(page, task)
-        }.onSuccess {
-            if (it.data.isEmpty()) {
-                mutex.withLock {
-                    isLastPage = true
-                }
-            } else {
-                val novels = mutableListOf<SfacgNovel>()
-                it.data.forEach { novel ->
-                    novels.add(novel.toSfacgNovel(task))
-                    mutex.withLock {
-                        if (logs.size > logSizeLimit) {
-                            logs.removeFirst()
+        if (mPage > task.endPage) return true
+        return runCatching {
+            novelRepository.getNovels(mPage, task)
+        }.fold(
+            onSuccess = {
+                if (it.data.isEmpty()) {
+                    true
+                } else {
+                    val novels = mutableListOf<SfacgNovel>()
+                    it.data.forEach { novel ->
+                        novels.add(novel.toSfacgNovel(task))
+                        mutex.withLock {
+                            if (logs.size > logSizeLimit) {
+                                logs.removeFirst()
+                            }
+                            logs.add("《${novel.novelName}》—— ${novel.authorName}")
+                            logSize++
                         }
-                        logs.add("《${novel.novelName}》—— ${novel.authorName}")
-                        logSize++
                     }
+                    novelRepository.insertSfacg(*novels.toTypedArray())
+                    false
                 }
-                novelRepository.insertSfacg(*novels.toTypedArray())
+            },
+            onFailure = {
+                Log.d(this@CrawlerViewModel::class.simpleName, it.toString())
+                null
             }
-        }.onFailure {
-            Log.d(this@CrawlerViewModel::class.simpleName, it.toString())
-        }
+        )
     }
 
     fun getTask(taskID: Long): Flow<SfacgNovelListTask> {

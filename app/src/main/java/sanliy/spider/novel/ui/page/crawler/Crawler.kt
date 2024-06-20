@@ -27,6 +27,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -81,6 +84,12 @@ fun SfCrawlerContext(
     LaunchedEffect(crawlerViewModel.logs.size) {
         logsState.animateScrollToItem(crawlerViewModel.logs.size - 1)
     }
+
+    var logOrderWidth by remember { mutableIntStateOf(16 + 8) }
+    LaunchedEffect(crawlerViewModel.logSize.toString().length) {
+        logOrderWidth = crawlerViewModel.logSize.toString().length * 16 + 8
+    }
+
     Column(
         Modifier
             .fillMaxWidth()
@@ -103,13 +112,12 @@ fun SfCrawlerContext(
                     .horizontalScroll(state),
                 logsState
             ) {
-
                 items(crawlerViewModel.logs.size) {
                     Row {
                         Text(
                             text = (crawlerViewModel.logSize - crawlerViewModel.logs.size + it).toString(),
                             modifier = Modifier
-                                .width(60.dp)
+                                .width(logOrderWidth.dp)
                                 .padding(end = 8.dp)
                                 .drawBehind {
                                     val strokeWidth = 1.dp.toPx()
