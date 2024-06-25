@@ -4,6 +4,7 @@ import sanliy.spider.novel.net.sfacg.FinishedStatus
 import sanliy.spider.novel.net.sfacg.FreeStatus
 import sanliy.spider.novel.net.sfacg.Sort
 import sanliy.spider.novel.net.sfacg.UpdatedDate
+import sanliy.spider.novel.room.model.Tag
 import java.time.LocalDateTime
 
 interface IBaseTask {
@@ -32,7 +33,7 @@ interface ISfacgNLT : INovelListTask {
     val isFinish: FinishedStatus
     val isFree: FreeStatus
     val sort: Sort
-    val tags: String
-    val antiTags: String
+    val tags: List<Tag>
+    val antiTags: List<Tag>
 }
 

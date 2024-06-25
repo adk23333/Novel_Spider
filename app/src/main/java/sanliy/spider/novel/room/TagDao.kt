@@ -21,12 +21,15 @@ interface TagDao {
     @Query("SELECT * FROM tags WHERE tag_name = :tagName AND platform = :platform")
     fun getWithName(tagName: String, platform: NovelPlatform): Tag
 
+    @Query("SELECT * FROM tags WHERE tag_id = :tagID AND platform = :platform")
+    suspend fun getById(tagID: String, platform: NovelPlatform): Tag
+
 
     @Delete
     suspend fun delete(tag: Tag)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(vararg tag: Tag)
+    fun insert(vararg tag: Tag)
 
     @Update
     suspend fun update(tag: Tag)

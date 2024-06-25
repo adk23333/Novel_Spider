@@ -2,8 +2,6 @@
 
 package sanliy.spider.novel.ui.page
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,6 +42,7 @@ import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import sanliy.spider.novel.R
 import sanliy.spider.novel.Screen
+import sanliy.spider.novel.model.NovelPlatform
 import sanliy.spider.novel.ui.theme.Novel_SpiderTheme
 
 @Composable
@@ -100,10 +99,10 @@ fun HomeContext(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            IconWithTextButton(R.drawable.ic_action_sfacg, R.string.home_sfacg) {
+            IconWithTextButton(NovelPlatform.SFACG) {
                 navController.navigate(Screen.OPTION_SF.route)
             }
-            IconWithTextButton(R.drawable.ic_action_ciweimao, R.string.home_ciweimao) {
+            IconWithTextButton(NovelPlatform.CI_WEI_MAO) {
                 scope.launch {
                     snackBarState.showSnackbar("暂未支持刺猬猫", withDismissAction = true)
                 }
@@ -116,8 +115,7 @@ fun HomeContext(
 
 @Composable
 fun IconWithTextButton(
-    @DrawableRes icon: Int,
-    @StringRes text: Int,
+    platform: NovelPlatform,
     onClick: () -> Unit,
 ) {
     Button(
@@ -126,12 +124,12 @@ fun IconWithTextButton(
         )
     ) {
         Icon(
-            painterResource(icon), null,
+            painterResource(platform.drawableID), null,
             Modifier
                 .width(30.dp)
                 .height(30.dp), Color.Unspecified
         )
-        Text(stringResource(text), fontSize = 28.sp)
+        Text(stringResource(platform.stringID), fontSize = 28.sp)
     }
 }
 

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -112,10 +113,11 @@ fun SfCrawlerContext(
                     .horizontalScroll(state),
                 logsState
             ) {
-                items(crawlerViewModel.logs.size) {
+
+                itemsIndexed(crawlerViewModel.logs) { index, log ->
                     Row {
                         Text(
-                            text = (crawlerViewModel.logSize - crawlerViewModel.logs.size + it).toString(),
+                            text = (crawlerViewModel.logSize - crawlerViewModel.logs.size + index).toString(),
                             modifier = Modifier
                                 .width(logOrderWidth.dp)
                                 .padding(end = 8.dp)
@@ -133,7 +135,7 @@ fun SfCrawlerContext(
                             textAlign = TextAlign.Right,
                             fontFamily = FontFamily.Monospace
                         )
-                        Text(text = crawlerViewModel.logs[it])
+                        Text(text = log)
                     }
                 }
             }

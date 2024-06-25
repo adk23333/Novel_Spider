@@ -33,47 +33,31 @@ data class SfacgNovelListTask(
     @ColumnInfo("is_finish") override var isFinish: FinishedStatus = FinishedStatus.BOTH,
     @ColumnInfo("is_free") override var isFree: FreeStatus = FreeStatus.BOTH,
     @ColumnInfo("sort") override var sort: Sort = Sort.LATEST,
-    @ColumnInfo("novels_id") override var tags: String = "",
-    @ColumnInfo("anti_novels_id") override var antiTags: String = "",
+    @ColumnInfo("novels_id") override var tags: List<Tag> = listOf(),
+    @ColumnInfo("anti_novels_id") override var antiTags: List<Tag> = listOf(),
 ) : ISfacgNLT {
-    fun addTag(tagID: String): SfacgNovelListTask {
-        val tags = this.tags.split(",").toMutableSet()
-        val antiTags = this.antiTags.split(",").toMutableSet()
-
-        tags.add(tagID)
-        tags.remove("")
-        antiTags.remove(tagID)
-
-        return this.copy(tags = tags.joinToString(","), antiTags = antiTags.joinToString(","))
+    fun addTag(tag: Tag): SfacgNovelListTask {
+        val mTags = tags.toMutableList()
+        val mAntiTags = antiTags.toMutableList()
+        mTags.add(tag)
+        mAntiTags.removeIf { it.tagID == tag.tagID }
+        return this.copy(tags = mTags, antiTags = mAntiTags)
     }
 
-    fun addAntiTag(tagID: String): SfacgNovelListTask {
-        val tags = this.tags.split(",").toMutableSet()
-        val antiTags = this.antiTags.split(",").toMutableSet()
-
-        antiTags.add(tagID)
-        antiTags.remove("")
-        tags.remove(tagID)
-
-        return this.copy(tags = tags.joinToString(","), antiTags = antiTags.joinToString(","))
+    fun addAntiTag(tag: Tag): SfacgNovelListTask {
+        val mTags = tags.toMutableList()
+        val mAntiTags = antiTags.toMutableList()
+        mAntiTags.add(tag)
+        mTags.removeIf { it.tagID == tag.tagID }
+        return this.copy(tags = mTags, antiTags = mAntiTags)
     }
 
-    fun removeTag(tagID: String): SfacgNovelListTask {
-        val tags = this.tags.split(",").toMutableSet()
-        val antiTags = this.antiTags.split(",").toMutableSet()
-
-        tags.remove(tagID)
-        antiTags.remove(tagID)
-
-        return this.copy(tags = tags.joinToString(","), antiTags = antiTags.joinToString(","))
-    }
-
-    fun getTagIDs(): List<String> {
-        return tags.split(",")
-    }
-
-    fun getAntiTagIDs(): List<String> {
-        return antiTags.split(",")
+    fun removeTag(tag: Tag): SfacgNovelListTask {
+        val mTags = tags.toMutableList()
+        val mAntiTags = antiTags.toMutableList()
+        mTags.removeIf { it.tagID == tag.tagID }
+        mAntiTags.removeIf { it.tagID == tag.tagID }
+        return this.copy(tags = mTags, antiTags = mAntiTags)
     }
 }
 

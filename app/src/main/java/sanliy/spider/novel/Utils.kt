@@ -1,7 +1,5 @@
 package sanliy.spider.novel
 
-import sanliy.spider.novel.net.sfacg.SysTag
-
 
 enum class TripleSwitch {
     TRUE {
@@ -30,15 +28,6 @@ fun tripleSwitch(input: Int): Int {
         -1 -> 0
         else -> throw IllegalArgumentException("Invalid input")
     }
-}
-
-fun List<SysTag>.toIdListString(): String {
-    var idList = ""
-    this.forEach {
-        if (idList != "") idList += ","
-        idList += it.sysTagId.toString()
-    }
-    return idList
 }
 
 sealed class UiState<out T> {

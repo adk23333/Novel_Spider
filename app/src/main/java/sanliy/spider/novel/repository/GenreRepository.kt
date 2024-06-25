@@ -8,7 +8,9 @@ import sanliy.spider.novel.net.sfacg.SfacgService
 import sanliy.spider.novel.room.GenreDao
 import sanliy.spider.novel.room.model.Genre
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class GenreRepository @Inject constructor(
     private val genreDao: GenreDao,
     private val sfacgService: SfacgService,

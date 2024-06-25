@@ -9,6 +9,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import sanliy.spider.novel.NovelApplication
 import sanliy.spider.novel.room.model.Genre
 import sanliy.spider.novel.room.model.SfacgNovel
@@ -85,5 +87,15 @@ class Converters {
     @TypeConverter
     fun dateToTimestamp(date: LocalDateTime): Long {
         return date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+    }
+
+    @TypeConverter
+    fun tagsToString(tags: List<Tag>): String {
+        return Json.encodeToString(tags)
+    }
+
+    @TypeConverter
+    fun stringToTags(value: String): List<Tag> {
+        return Json.decodeFromString<List<Tag>>(value)
     }
 }

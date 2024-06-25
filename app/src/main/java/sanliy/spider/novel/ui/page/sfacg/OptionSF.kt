@@ -75,7 +75,7 @@ import sanliy.spider.novel.onLoading
 import sanliy.spider.novel.onSuccess
 import sanliy.spider.novel.room.model.Genre
 import sanliy.spider.novel.room.model.SfacgNovelListTask
-import sanliy.spider.novel.room.model.Tag
+import sanliy.spider.novel.room.model.toTagNameList
 import sanliy.spider.novel.ui.page.SingleSelectionFilterChipList
 import sanliy.spider.novel.ui.page.TextWithPressTopBar
 import sanliy.spider.novel.ui.page.Toast
@@ -171,14 +171,10 @@ fun OptionSFContext(
             Arrangement.spacedBy(8.dp),
             Alignment.CenterHorizontally
         ) {
-            val tags by sfViewModel.getTags(
-                *sfViewModel.taskState.getTagIDs().toTypedArray()
-            ).collectAsState(emptyList())
-
             Option(
                 optionsModifier,
                 stringResource(R.string.option_sf_1),
-                Tag.toTagNameList(tags)
+                sfViewModel.taskState.tags.toTagNameList()
             ) { title, _ ->
                 Column(
                     Modifier
@@ -192,14 +188,10 @@ fun OptionSFContext(
                 }
             }
 
-            val antiTags by sfViewModel.getTags(
-                *sfViewModel.taskState.getAntiTagIDs().toTypedArray()
-            ).collectAsState(emptyList())
-
             Option(
                 optionsModifier,
                 stringResource(R.string.option_sf_16),
-                Tag.toTagNameList(antiTags)
+                sfViewModel.taskState.antiTags.toTagNameList()
             ) { title, _ ->
                 Column(
                     Modifier
@@ -445,12 +437,12 @@ fun TagSelectedDialog(
                 )
             }
             .onSuccess { sysTags ->
-                sysTags.forEach {
+                sysTags.forEach { sysTag ->
                     TagFilterChip(
-                        it,
-                        when (it.sysTagId.toString()) {
-                            in taskState.getTagIDs() -> TripleSwitch.TRUE
-                            in taskState.getAntiTagIDs() -> TripleSwitch.FALSE
+                        sysTag,
+                        when (sysTag.sysTagId.toString()) {
+                            in taskState.tags.map { it.tagID } -> TripleSwitch.TRUE
+                            in taskState.antiTags.map { it.tagID } -> TripleSwitch.FALSE
                             else -> TripleSwitch.NULL
                         },
                         sfViewModel
@@ -481,17 +473,17 @@ fun TagFilterChip(
         selected != TripleSwitch.NULL,
         onClick = {
             selected = selected.nextKey()
-            sfViewModel.taskState = when (selected) {
+            when (selected) {
                 TripleSwitch.FALSE -> {
-                    sfViewModel.taskState.addAntiTag(tag.sysTagId.toString())
+                    sfViewModel.addAntiTag(tag.sysTagId.toString())
                 }
 
                 TripleSwitch.NULL -> {
-                    sfViewModel.taskState.removeTag(tag.sysTagId.toString())
+                    sfViewModel.removeTag(tag.sysTagId.toString())
                 }
 
                 TripleSwitch.TRUE -> {
-                    sfViewModel.taskState.addTag(tag.sysTagId.toString())
+                    sfViewModel.addTag(tag.sysTagId.toString())
                 }
             }
         },

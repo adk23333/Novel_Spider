@@ -33,8 +33,8 @@ class SfacgService @Inject constructor(
             parameter("size", 20)
             parameter("sort", task.sort)
             parameter("updatedays", task.updateDate)
-            parameter("systagids", task.tags)
-            parameter("notexcludesystagids", task.antiTags)
+            parameter("systagids", task.tags.joinToString(",") { it.tagID })
+            parameter("notexcludesystagids", task.antiTags.joinToString(",") { it.tagID })
             parameter("page", page)
         }
     }

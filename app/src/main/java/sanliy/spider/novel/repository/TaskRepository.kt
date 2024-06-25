@@ -7,7 +7,9 @@ import sanliy.spider.novel.room.TagDao
 import sanliy.spider.novel.room.model.SfacgNovelListTask
 import sanliy.spider.novel.room.model.Tag
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class TaskRepository @Inject constructor(
     private val sfacgTaskDao: SfacgTaskDao,
     private val tagDao: TagDao,
@@ -18,7 +20,7 @@ class TaskRepository @Inject constructor(
         return sfacgTaskDao.insert(task)
     }
 
-    suspend fun insertTag(tags: List<Tag>) {
+    fun insertTag(tags: List<Tag>) {
         tagDao.insert(*tags.toTypedArray())
     }
 

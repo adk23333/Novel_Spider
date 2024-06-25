@@ -71,8 +71,8 @@ fun MainNavHost(
     ) {
         composable(Screen.HOME.route) { HomeScreen(navController) }
         composable(Screen.OPTION_SF.route) { OptionSF(navController) }
-        composable(Screen.HISTORY.route) { HistoryScreen(navController, viewModel) }
-        composable(Screen.MARK.route) { MarkScreen(navController, viewModel) }
+        composable(Screen.HISTORY.route) { HistoryScreen(navController) }
+        composable(Screen.MARK.route) { MarkScreen(navController) }
         composable(
             "${Screen.SPIDER.route}?taskID={taskID}",
             arguments = listOf(

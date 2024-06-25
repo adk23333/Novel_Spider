@@ -8,13 +8,19 @@ import sanliy.spider.novel.net.sfacg.SfacgService
 import sanliy.spider.novel.room.TagDao
 import sanliy.spider.novel.room.model.Tag
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class TagRepository @Inject constructor(
     private val tagDao: TagDao,
     private val sfacgService: SfacgService,
 ) {
     fun getWithSfacgAndID(vararg tagID: String): Flow<List<Tag>> {
         return tagDao.getWithId(*tagID, platform = NovelPlatform.SFACG)
+    }
+
+    suspend fun getByIdWithSfacg(tagID: String): Tag {
+        return tagDao.getById(tagID, NovelPlatform.SFACG)
     }
 
     suspend fun getWithSfacgAndName(tagName: String): String {

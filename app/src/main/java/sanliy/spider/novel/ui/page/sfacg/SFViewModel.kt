@@ -52,6 +52,27 @@ class SFViewModel @Inject constructor(
         )
     }
 
+    fun addTag(tagID: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val tag = tagRepository.getByIdWithSfacg(tagID)
+            taskState = taskState.addTag(tag)
+        }
+    }
+
+    fun addAntiTag(tagID: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val tag = tagRepository.getByIdWithSfacg(tagID)
+            taskState = taskState.addAntiTag(tag)
+        }
+    }
+
+    fun removeTag(tagID: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val tag = tagRepository.getByIdWithSfacg(tagID)
+            taskState = taskState.removeTag(tag)
+        }
+    }
+
     fun getTags(vararg sysTagID: String): Flow<List<Tag>> {
         return tagRepository.getWithSfacgAndID(*sysTagID)
     }

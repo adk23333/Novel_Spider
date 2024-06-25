@@ -7,8 +7,10 @@ import sanliy.spider.novel.room.SfacgNovelDao
 import sanliy.spider.novel.room.model.SfacgNovel
 import sanliy.spider.novel.room.model.SfacgNovelListTask
 import javax.inject.Inject
+import javax.inject.Singleton
 
 
+@Singleton
 class NovelRepository @Inject constructor(
     private val sfacgNovelDao: SfacgNovelDao,
     private val sfacgService: SfacgService,
