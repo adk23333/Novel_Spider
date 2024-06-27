@@ -1,12 +1,8 @@
 package sanliy.spider.novel.net.sfacg
 
 import kotlinx.serialization.Serializable
-import sanliy.spider.novel.model.IBaseTask
 import sanliy.spider.novel.model.NovelPlatform
-import sanliy.spider.novel.room.model.Genre
-import sanliy.spider.novel.room.model.SfacgNovel
 import sanliy.spider.novel.room.model.Tag
-import java.time.LocalDateTime
 
 
 @Serializable
@@ -44,34 +40,7 @@ data class Novels(
     override val signStatus: String,
     override val categoryId: Int,
     override val expand: Expand,
-) : INovels {
-    fun toSfacgNovel(task: IBaseTask): SfacgNovel {
-        return SfacgNovel(
-            this.novelId.toString(),
-            task.taskID!!,
-            NovelPlatform.SFACG,
-            this.novelName,
-            this.expand.intro,
-            this.authorId.toString(),
-            this.authorName,
-            this.expand.sysTags.joinToString(",") { it.sysTagId.toString() },
-            LocalDateTime.parse(this.lastUpdateTime),
-            this.markCount,
-            this.novelCover,
-            this.bgBanner,
-            this.point,
-            this.isFinish,
-            this.charCount,
-            this.viewTimes,
-            this.allowDown,
-            LocalDateTime.parse(this.addTime),
-            this.isSensitive,
-            this.signStatus,
-            Genre.name2save(this.expand.typeName),
-            this.categoryId
-        )
-    }
-}
+) : INovels
 
 @Serializable
 data class Expand(

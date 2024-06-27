@@ -24,7 +24,7 @@ class SfacgService @Inject constructor(
 
     suspend fun getNovels(page: Int, task: ISfacgNLT): HttpResponse {
         return client.get {
-            url("novels/${task.genreID}/sysTags/novels")
+            url("novels/${task.genre.genreID}/sysTags/novels")
             parameter("charcountbegin", task.beginCount)
             parameter("charcountend", task.endCount)
             parameter("expand", task.expand)

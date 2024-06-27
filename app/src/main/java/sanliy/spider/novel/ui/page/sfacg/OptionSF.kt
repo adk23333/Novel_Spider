@@ -36,7 +36,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -64,6 +63,7 @@ import sanliy.spider.novel.R
 import sanliy.spider.novel.Screen
 import sanliy.spider.novel.TripleSwitch
 import sanliy.spider.novel.UiState
+import sanliy.spider.novel.model.NovelPlatform
 import sanliy.spider.novel.net.sfacg.CharCount
 import sanliy.spider.novel.net.sfacg.FinishedStatus
 import sanliy.spider.novel.net.sfacg.FreeStatus
@@ -122,11 +122,7 @@ fun OptionSFContext(
     genresState.onSuccess {
         sfViewModel.setGenres(*it.toTypedArray())
     }
-
-    val taskGenre: Genre? by sfViewModel.getGenreName(sfViewModel.taskState.genreID)
-        .collectAsState(Genre.DefaultSFACG)
     val optionsModifier = Modifier.fillMaxWidth()
-
     val focusManager = LocalFocusManager.current
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -252,7 +248,7 @@ fun OptionSFContext(
             Option(
                 optionsModifier,
                 stringResource(R.string.option_sf_15),
-                taskGenre?.genreName ?: Genre.DefaultSFACG.genreName
+                sfViewModel.taskState.genre.genreName
             ) { title, _ ->
                 genresState
                     .onLoading {
@@ -271,12 +267,17 @@ fun OptionSFContext(
                             title,
                             novelTypes,
                             { it.typeName },
-                            { it.typeId.toString() == sfViewModel.taskState.genreID }
+                            { it.typeId.toString() == sfViewModel.taskState.genre.genreID }
                         ) {
                             sfViewModel.taskState =
-                                sfViewModel.taskState.copy(genreID = it.typeId.toString())
+                                sfViewModel.taskState.copy(
+                                    genre = Genre(
+                                        it.typeId.toString(),
+                                        NovelPlatform.SFACG,
+                                        it.typeName
+                                    )
+                                )
                         }
-
                     }
                     .onFailure {
                         Icon(

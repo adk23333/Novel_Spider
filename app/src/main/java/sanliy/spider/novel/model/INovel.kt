@@ -10,7 +10,7 @@ interface IBaseNovel {
     val novelIntro: String
     val authorID: String
     val authorName: String
-    val tags: String
+    val tags: List<ITag>
 }
 
 interface ISfacgNovel : IBaseNovel {
@@ -26,7 +26,7 @@ interface ISfacgNovel : IBaseNovel {
     val createdTime: LocalDateTime
     val isSensitive: Boolean
     val signStatus: String
-    val genreID: String
+    val genre: IGenre
     val categoryId: Int //小说类型，如对话小说
 }
 

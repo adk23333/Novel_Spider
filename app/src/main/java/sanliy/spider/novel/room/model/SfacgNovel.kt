@@ -18,7 +18,7 @@ data class SfacgNovel(
     @ColumnInfo(name = "novel_intro") override val novelIntro: String,
     @ColumnInfo(name = "author_id") override val authorID: String,
     @ColumnInfo(name = "author_name") override val authorName: String,
-    @ColumnInfo(name = "tags") override val tags: String,
+    @ColumnInfo(name = "tags") override val tags: List<Tag>,
     @ColumnInfo(name = "last_update_time") override val lastUpdateTime: LocalDateTime,
     @ColumnInfo(name = "mark_count") override val markCount: Int,
     @ColumnInfo(name = "novel_cover") override val novelCover: String,
@@ -31,6 +31,6 @@ data class SfacgNovel(
     @ColumnInfo(name = "created_time") override val createdTime: LocalDateTime,
     @ColumnInfo(name = "is_sensitive") override val isSensitive: Boolean,
     @ColumnInfo(name = "sign_status") override val signStatus: String,
-    @ColumnInfo(name = "genre") override val genreID: String,
+    @ColumnInfo(name = "genre") override val genre: Genre,
     @ColumnInfo(name = "category_id") override val categoryId: Int,
 ) : ISfacgNovel

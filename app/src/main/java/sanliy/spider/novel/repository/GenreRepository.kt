@@ -1,7 +1,6 @@
 package sanliy.spider.novel.repository
 
 import io.ktor.client.call.body
-import kotlinx.coroutines.flow.Flow
 import sanliy.spider.novel.model.NovelPlatform
 import sanliy.spider.novel.net.sfacg.ResponseNovelTypes
 import sanliy.spider.novel.net.sfacg.SfacgService
@@ -15,7 +14,7 @@ class GenreRepository @Inject constructor(
     private val genreDao: GenreDao,
     private val sfacgService: SfacgService,
 ) {
-    fun getSfacgGenre(genreID: String): Flow<Genre> {
+    suspend fun getSfacgGenre(genreID: String): Genre {
         return genreDao.getSfacgGenreWithId(genreID, NovelPlatform.SFACG)
     }
 
@@ -25,5 +24,9 @@ class GenreRepository @Inject constructor(
 
     suspend fun insertGenre(vararg genre: Genre) {
         genreDao.insert(*genre)
+    }
+
+    suspend fun getSfacgGenreByName(name: String): Genre? {
+        return genreDao.getGenreByName(name, NovelPlatform.SFACG)
     }
 }

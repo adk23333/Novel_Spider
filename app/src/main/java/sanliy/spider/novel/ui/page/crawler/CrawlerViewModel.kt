@@ -16,17 +16,23 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import sanliy.spider.novel.model.NovelPlatform
+import sanliy.spider.novel.repository.GenreRepository
 import sanliy.spider.novel.repository.NovelRepository
 import sanliy.spider.novel.repository.TaskRepository
+import sanliy.spider.novel.room.model.Genre
 import sanliy.spider.novel.room.model.SfacgNovel
 import sanliy.spider.novel.room.model.SfacgNovelListTask
+import sanliy.spider.novel.room.model.Tag
 import sanliy.spider.novel.share.writeToExcelAndShare
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class CrawlerViewModel @Inject constructor(
     private val novelRepository: NovelRepository,
     private val taskRepository: TaskRepository,
+    private val genreRepository: GenreRepository,
 ) : ViewModel() {
     private val mutex = Mutex()
     private var page = 1
@@ -72,9 +78,37 @@ class CrawlerViewModel @Inject constructor(
                 if (it.data.isEmpty()) {
                     true
                 } else {
-                    val novels = mutableListOf<SfacgNovel>()
-                    it.data.forEach { novel ->
-                        novels.add(novel.toSfacgNovel(task))
+                    val novels = it.data.map { novel ->
+                        val sfacgNovel = SfacgNovel(
+                            novel.novelId.toString(),
+                            task.taskID!!,
+                            NovelPlatform.SFACG,
+                            novel.novelName,
+                            novel.expand.intro,
+                            novel.authorId.toString(),
+                            novel.authorName,
+                            novel.expand.sysTags.map { sysTag ->
+                                Tag(
+                                    sysTag.sysTagId.toString(),
+                                    NovelPlatform.SFACG,
+                                    sysTag.tagName
+                                )
+                            },
+                            LocalDateTime.parse(novel.lastUpdateTime),
+                            novel.markCount,
+                            novel.novelCover,
+                            novel.bgBanner,
+                            novel.point,
+                            novel.isFinish,
+                            novel.charCount,
+                            novel.viewTimes,
+                            novel.allowDown,
+                            LocalDateTime.parse(novel.addTime),
+                            novel.isSensitive,
+                            novel.signStatus,
+                            getGenre(novel.expand.typeName) ?: Genre.DefaultSFACG,
+                            novel.categoryId
+                        )
                         mutex.withLock {
                             if (logs.size > logSizeLimit) {
                                 logs.removeFirst()
@@ -82,6 +116,7 @@ class CrawlerViewModel @Inject constructor(
                             logs.add("《${novel.novelName}》—— ${novel.authorName}")
                             logSize++
                         }
+                        sfacgNovel
                     }
                     novelRepository.insertSfacg(*novels.toTypedArray())
                     false
@@ -103,5 +138,9 @@ class CrawlerViewModel @Inject constructor(
             val novels = novelRepository.getSfacgWithTask(task)
             writeToExcelAndShare(task, novels)
         }
+    }
+
+    suspend fun getGenre(name: String): Genre? {
+        return genreRepository.getSfacgGenreByName(name)
     }
 }

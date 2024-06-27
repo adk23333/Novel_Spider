@@ -107,7 +107,7 @@ class SFViewModel @Inject constructor(
         }
     }
 
-    fun getGenreName(genreID: String): Flow<Genre> {
+    suspend fun getGenreName(genreID: String): Genre {
         return genreRepository.getSfacgGenre(genreID)
     }
 

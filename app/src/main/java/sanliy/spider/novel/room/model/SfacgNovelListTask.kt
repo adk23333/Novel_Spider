@@ -22,7 +22,7 @@ data class SfacgNovelListTask(
     @ColumnInfo("is_delete") override var isDelete: Boolean = false,
     @ColumnInfo("created") override var created: LocalDateTime = LocalDateTime.now(),
     @ColumnInfo("updated") override var updated: LocalDateTime = LocalDateTime.now(),
-    @ColumnInfo("novel_genre") override var genreID: String = Genre.DefaultSFACG.genreID,
+    @ColumnInfo("novel_genre") override var genre: Genre = Genre.DefaultSFACG,
     @ColumnInfo("novels_num") override var novelsNum: Int = 0,
     @ColumnInfo("start_page") override var startPage: Int = 1,
     @ColumnInfo("end_page") override var endPage: Int = 0,

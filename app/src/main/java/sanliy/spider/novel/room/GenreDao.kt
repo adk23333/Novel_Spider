@@ -16,7 +16,10 @@ interface GenreDao {
     fun getWithPlatform(platform: NovelPlatform): Flow<List<Genre>>
 
     @Query("SELECT * FROM genres WHERE genre_id = :genreID AND platform = :platform")
-    fun getSfacgGenreWithId(genreID: String, platform: NovelPlatform): Flow<Genre>
+    suspend fun getSfacgGenreWithId(genreID: String, platform: NovelPlatform): Genre
+
+    @Query("SELECT * FROM genres WHERE genre_name = :name AND platform = :platform")
+    suspend fun getGenreByName(name: String, platform: NovelPlatform): Genre?
 
     @Delete
     fun delete(genre: Genre)

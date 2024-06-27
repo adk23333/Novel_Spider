@@ -15,6 +15,7 @@ import sanliy.spider.novel.NovelApplication
 import sanliy.spider.novel.room.model.SfacgNovel
 import sanliy.spider.novel.room.model.SfacgNovelListTask
 import java.io.File
+import java.time.format.DateTimeFormatter
 
 suspend fun writeToExcelAndShare(task: SfacgNovelListTask, novels: List<SfacgNovel>) {
     val context = NovelApplication.instance.applicationContext
@@ -37,6 +38,7 @@ suspend fun writeToExcelAndShare(task: SfacgNovelListTask, novels: List<SfacgNov
 }
 
 fun writeNovelsToExcel(novels: List<SfacgNovel>, filePath: String) {
+    val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
     workbook {
         sheet {
             row {
@@ -67,14 +69,14 @@ fun writeNovelsToExcel(novels: List<SfacgNovel>, filePath: String) {
                     cell(it.isFinish)
                     cell(it.signStatus)
                     cell(it.novelCover)
-                    cell(it.lastUpdateTime)
-                    cell(it.genreID)
+                    cell(it.lastUpdateTime.format(pattern))
+                    cell(it.genre.genreName)
                     cell(it.bgBanner)
                     cell(it.point)
-                    cell(it.createdTime)
+                    cell(it.createdTime.format(pattern))
                     cell(it.isSensitive)
-                    it.tags.split(",").forEach {
-                        cell(it)
+                    it.tags.forEach {
+                        cell(it.tagName)
                     }
                 }
             }

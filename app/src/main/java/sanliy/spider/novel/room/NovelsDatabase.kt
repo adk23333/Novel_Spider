@@ -38,6 +38,7 @@ abstract class NovelsDatabase : RoomDatabase() {
 
     companion object {
         const val DATABASE_NAME = "novels.sqlite"
+        lateinit var instance: NovelsDatabase
     }
 }
 
@@ -49,11 +50,12 @@ class NovelsDatabaseModule {
     fun provideNovelDatabase(
         application: NovelApplication,
     ): NovelsDatabase {
-        return Room.databaseBuilder(
+        NovelsDatabase.instance = Room.databaseBuilder(
             application,
             NovelsDatabase::class.java,
             NovelsDatabase.DATABASE_NAME
         ).build()
+        return NovelsDatabase.instance
     }
 
     @Provides
@@ -97,5 +99,15 @@ class Converters {
     @TypeConverter
     fun stringToTags(value: String): List<Tag> {
         return Json.decodeFromString<List<Tag>>(value)
+    }
+
+    @TypeConverter
+    fun genreToString(genre: Genre): String {
+        return Json.encodeToString(genre)
+    }
+
+    @TypeConverter
+    fun stringToGenre(value: String): Genre {
+        return Json.decodeFromString<Genre>(value)
     }
 }

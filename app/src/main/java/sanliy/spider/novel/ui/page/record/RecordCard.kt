@@ -195,7 +195,7 @@ fun DetailsBottomSheet(
             }
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
                 Text(text = stringResource(R.string.option_sf_15))
-                Text(text = task.genreID)
+                Text(text = task.genre.genreName)
             }
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
                 Text(text = stringResource(R.string.option_sf_7))
