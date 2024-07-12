@@ -22,9 +22,10 @@
     <string name="option_sf_14">配置已保存</string>
     <string name="option_sf_15">作品类型</string>
     <string name="option_sf_16">反选标签</string>
+    <string name="option_sf_17">请求失败</string>
     <string name="spider_sf">运行</string>
     <string name="spider_sf_1">开始爬取</string>
     <string name="spider_sf_2">分享</string>
-    <string name="mark_1">配置收藏</string>
+    <string name="mark_1">收藏</string>
     <string name="history_1">历史记录</string>
 </resources>

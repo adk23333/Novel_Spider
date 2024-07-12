@@ -23,7 +23,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
@@ -45,11 +48,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -78,7 +81,6 @@ import sanliy.spider.novel.room.model.SfacgNovelListTask
 import sanliy.spider.novel.room.model.toTagNameList
 import sanliy.spider.novel.ui.page.SingleSelectionFilterChipList
 import sanliy.spider.novel.ui.page.TextWithPressTopBar
-import sanliy.spider.novel.ui.page.Toast
 
 const val TAG = "ui.page.sfacg.OptionSF"
 
@@ -92,7 +94,8 @@ fun OptionSF(
             TextWithPressTopBar(
                 stringResource(Screen.OPTION_SF.stringId),
                 { navController.popBackStack() })
-        }) {
+        },
+    ) {
         OptionSFContext(it, navController)
     }
 }
@@ -105,7 +108,6 @@ fun OptionSFContext(
 ) {
     val context = LocalContext.current
     val text = stringResource(R.string.option_sf_13)
-    val text2 = stringResource(R.string.option_sf_14)
     var isMark by remember { mutableStateOf(true) }
     val tagsState by produceState<UiState<List<SysTag>>>(UiState.Loading) {
         value = sfViewModel.getSysTags()
@@ -280,14 +282,10 @@ fun OptionSFContext(
                         }
                     }
                     .onFailure {
-                        Icon(
-                            ImageVector.vectorResource(R.drawable.wifi_valid),
-                            null,
-                            Modifier
-                                .size(64.dp)
-                                .background(MaterialTheme.colorScheme.background)
+                        NetworkErrorDialogContent(
+                            MaterialTheme.colorScheme.errorContainer,
+                            MaterialTheme.shapes.large
                         )
-                        Toast("OptionSF-Genre", "网络错误")
                     }
 
             }
@@ -396,22 +394,29 @@ fun OptionSFContext(
             Text(stringResource(R.string.option_sf_12))
         }
 
-        Button(onClick = {
-            if (sfViewModel.taskState.taskName.isNotBlank()) {
-                var taskID: Long?
-                CoroutineScope(Dispatchers.IO).launch {
-                    taskID = sfViewModel.insertTask(sfViewModel.taskState)
-                    withContext(Dispatchers.Main) {
-                        sfViewModel.taskState = sfViewModel.taskState.copy(
-                            taskID = taskID
-                        )
-                        navController.navigate("${Screen.SPIDER.route}?taskID=${sfViewModel.taskState.taskID}")
+        Button(
+            onClick = {
+                if (sfViewModel.taskState.taskName.isNotBlank()) {
+                    var taskID: Long?
+                    CoroutineScope(Dispatchers.IO).launch {
+                        taskID = sfViewModel.insertTask(sfViewModel.taskState)
+                        withContext(Dispatchers.Main) {
+                            sfViewModel.taskState = sfViewModel.taskState.copy(
+                                taskID = taskID
+                            )
+                            navController.navigate("${Screen.SPIDER.route}?taskID=${sfViewModel.taskState.taskID}")
+                        }
                     }
+                } else {
+                    Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
                 }
-            } else {
-                Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
-            }
-        }, Modifier.width(200.dp)) {
+            },
+            Modifier.width(200.dp),
+            colors = ButtonDefaults.buttonColors().copy(
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+            )
+        ) {
             Text(stringResource(R.string.option_sf_11))
         }
     }
@@ -451,12 +456,7 @@ fun TagSelectedDialog(
                 }
             }
             .onFailure {
-                Icon(
-                    ImageVector.vectorResource(R.drawable.wifi_valid),
-                    null,
-                    Modifier.size(128.dp)
-                )
-                Toast(LocalContext.current.packageCodePath, it.toString())
+                NetworkErrorDialogContent()
             }
     }
 }
@@ -515,6 +515,26 @@ fun Option(
         Text(showValue, Modifier.clickable {
             show = !show
         })
+    }
+}
+
+@Composable
+fun NetworkErrorDialogContent(color: Color = Color.Unspecified, shape: Shape = RectangleShape) {
+    Column(
+        Modifier
+            .background(color, shape)
+            .padding(32.dp),
+        Arrangement.Center,
+        Alignment.CenterHorizontally
+    ) {
+        Icon(
+            Icons.Filled.Warning, null, Modifier.size(64.dp),
+            MaterialTheme.colorScheme.error
+        )
+        Text(
+            stringResource(R.string.option_sf_17),
+            style = MaterialTheme.typography.displaySmall
+        )
     }
 }
 
