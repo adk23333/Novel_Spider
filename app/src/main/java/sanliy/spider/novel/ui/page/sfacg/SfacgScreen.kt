@@ -85,7 +85,7 @@ import sanliy.spider.novel.ui.page.TextWithPressTopBar
 const val TAG = "ui.page.sfacg.OptionSF"
 
 @Composable
-fun OptionSF(
+fun SfacgScreen(
     navController: NavHostController,
 ) {
     Scaffold(
@@ -96,33 +96,33 @@ fun OptionSF(
                 { navController.popBackStack() })
         },
     ) {
-        OptionSFContext(it, navController)
+        SfacgContext(it, navController)
     }
 }
 
 @Composable
-fun OptionSFContext(
+fun SfacgContext(
     paddingValues: PaddingValues,
     navController: NavHostController,
-    sfViewModel: SFViewModel = hiltViewModel(),
+    sfacgViewModel: SfacgViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val text = stringResource(R.string.option_sf_13)
     var isMark by remember { mutableStateOf(true) }
     val tagsState by produceState<UiState<List<SysTag>>>(UiState.Loading) {
-        value = sfViewModel.getSysTags()
+        value = sfacgViewModel.getSysTags()
     }
 
     tagsState.onSuccess {
-        sfViewModel.setTags(*it.toTypedArray())
+        sfacgViewModel.setTags(*it.toTypedArray())
     }
 
     val genresState by produceState<UiState<List<NovelType>>>(UiState.Loading) {
-        value = sfViewModel.getSfacgGenres()
+        value = sfacgViewModel.getSfacgGenres()
     }
 
     genresState.onSuccess {
-        sfViewModel.setGenres(*it.toTypedArray())
+        sfacgViewModel.setGenres(*it.toTypedArray())
     }
     val optionsModifier = Modifier.fillMaxWidth()
     val focusManager = LocalFocusManager.current
@@ -136,9 +136,9 @@ fun OptionSFContext(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TextField(
-            sfViewModel.taskState.taskName,
+            sfacgViewModel.taskState.taskName,
             onValueChange = {
-                sfViewModel.taskState = sfViewModel.taskState.copy(taskName = it)
+                sfacgViewModel.taskState = sfacgViewModel.taskState.copy(taskName = it)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -172,7 +172,7 @@ fun OptionSFContext(
             Option(
                 optionsModifier,
                 stringResource(R.string.option_sf_1),
-                sfViewModel.taskState.tags.toTagNameList()
+                sfacgViewModel.taskState.tags.toTagNameList()
             ) { title, _ ->
                 Column(
                     Modifier
@@ -182,14 +182,14 @@ fun OptionSFContext(
                         .padding(12.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    TagSelectedDialog(title, sfViewModel.taskState, tagsState, sfViewModel)
+                    TagSelectedDialog(title, sfacgViewModel.taskState, tagsState, sfacgViewModel)
                 }
             }
 
             Option(
                 optionsModifier,
                 stringResource(R.string.option_sf_16),
-                sfViewModel.taskState.antiTags.toTagNameList()
+                sfacgViewModel.taskState.antiTags.toTagNameList()
             ) { title, _ ->
                 Column(
                     Modifier
@@ -199,7 +199,7 @@ fun OptionSFContext(
                         .padding(12.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    TagSelectedDialog(title, sfViewModel.taskState, tagsState, sfViewModel)
+                    TagSelectedDialog(title, sfacgViewModel.taskState, tagsState, sfacgViewModel)
                 }
             }
 
@@ -207,7 +207,7 @@ fun OptionSFContext(
             Option(
                 optionsModifier,
                 stringResource(R.string.option_sf_2),
-                "${sfViewModel.taskState.startPage} -> ${sfViewModel.taskState.endPage}"
+                "${sfacgViewModel.taskState.startPage} -> ${sfacgViewModel.taskState.endPage}"
             ) { title, _ ->
                 Column(
                     optionsModifier
@@ -221,11 +221,11 @@ fun OptionSFContext(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(stringResource(R.string.option_sf_4))
                         OutlinedTextField(
-                            sfViewModel.taskState.startPage.toString(),
+                            sfacgViewModel.taskState.startPage.toString(),
                             { v ->
                                 v.toIntOrNull()?.let {
-                                    sfViewModel.taskState =
-                                        sfViewModel.taskState.copy(startPage = it)
+                                    sfacgViewModel.taskState =
+                                        sfacgViewModel.taskState.copy(startPage = it)
                                 }
                             },
                             Modifier.width(80.dp),
@@ -233,10 +233,11 @@ fun OptionSFContext(
                         )
                         Text(text = stringResource(R.string.option_sf_5))
                         OutlinedTextField(
-                            sfViewModel.taskState.endPage.toString(),
+                            sfacgViewModel.taskState.endPage.toString(),
                             { v ->
                                 v.toIntOrNull()?.let {
-                                    sfViewModel.taskState = sfViewModel.taskState.copy(endPage = it)
+                                    sfacgViewModel.taskState =
+                                        sfacgViewModel.taskState.copy(endPage = it)
                                 }
                             },
                             Modifier.width(80.dp),
@@ -250,7 +251,7 @@ fun OptionSFContext(
             Option(
                 optionsModifier,
                 stringResource(R.string.option_sf_15),
-                sfViewModel.taskState.genre.genreName
+                sfacgViewModel.taskState.genre.genreName
             ) { title, _ ->
                 genresState
                     .onLoading {
@@ -269,10 +270,10 @@ fun OptionSFContext(
                             title,
                             novelTypes,
                             { it.typeName },
-                            { it.typeId.toString() == sfViewModel.taskState.genre.genreID }
+                            { it.typeId.toString() == sfacgViewModel.taskState.genre.genreID }
                         ) {
-                            sfViewModel.taskState =
-                                sfViewModel.taskState.copy(
+                            sfacgViewModel.taskState =
+                                sfacgViewModel.taskState.copy(
                                     genre = Genre(
                                         it.typeId.toString(),
                                         NovelPlatform.SFACG,
@@ -293,7 +294,7 @@ fun OptionSFContext(
             Option(
                 optionsModifier,
                 stringResource(R.string.option_sf_7),
-                sfViewModel.taskState.isFinish.zh,
+                sfacgViewModel.taskState.isFinish.zh,
             ) { title, _ ->
                 SingleSelectionFilterChipList(
                     optionsModifier
@@ -305,16 +306,16 @@ fun OptionSFContext(
                     title,
                     FinishedStatus.entries,
                     { it.zh },
-                    { it == sfViewModel.taskState.isFinish }
+                    { it == sfacgViewModel.taskState.isFinish }
                 ) {
-                    sfViewModel.taskState = sfViewModel.taskState.copy(isFinish = it)
+                    sfacgViewModel.taskState = sfacgViewModel.taskState.copy(isFinish = it)
                 }
             }
 
             Option(
                 optionsModifier,
                 stringResource(R.string.option_sf_8),
-                sfViewModel.taskState.isFree.zh,
+                sfacgViewModel.taskState.isFree.zh,
             ) { title, _ ->
                 SingleSelectionFilterChipList(
                     optionsModifier
@@ -326,16 +327,16 @@ fun OptionSFContext(
                     title,
                     FreeStatus.entries,
                     { it.zh },
-                    { it == sfViewModel.taskState.isFree }
+                    { it == sfacgViewModel.taskState.isFree }
                 ) {
-                    sfViewModel.taskState = sfViewModel.taskState.copy(isFree = it)
+                    sfacgViewModel.taskState = sfacgViewModel.taskState.copy(isFree = it)
                 }
             }
 
             Option(
                 optionsModifier,
                 stringResource(R.string.option_sf_9),
-                sfViewModel.taskState.updateDate.zh,
+                sfacgViewModel.taskState.updateDate.zh,
             ) { title, _ ->
                 SingleSelectionFilterChipList(
                     optionsModifier
@@ -347,9 +348,9 @@ fun OptionSFContext(
                     title,
                     UpdatedDate.entries,
                     { it.zh },
-                    { it == sfViewModel.taskState.updateDate }
+                    { it == sfacgViewModel.taskState.updateDate }
                 ) {
-                    sfViewModel.taskState = sfViewModel.taskState.copy(updateDate = it)
+                    sfacgViewModel.taskState = sfacgViewModel.taskState.copy(updateDate = it)
                 }
             }
 
@@ -357,8 +358,8 @@ fun OptionSFContext(
                 optionsModifier,
                 stringResource(R.string.option_sf_10),
                 CharCount.fromValue(
-                    sfViewModel.taskState.beginCount,
-                    sfViewModel.taskState.endCount
+                    sfacgViewModel.taskState.beginCount,
+                    sfacgViewModel.taskState.endCount
                 ).zh,
             ) { title, _ ->
                 SingleSelectionFilterChipList(
@@ -373,12 +374,12 @@ fun OptionSFContext(
                     { it.zh },
                     {
                         it == CharCount.fromValue(
-                            sfViewModel.taskState.beginCount,
-                            sfViewModel.taskState.endCount
+                            sfacgViewModel.taskState.beginCount,
+                            sfacgViewModel.taskState.endCount
                         )
                     }
                 ) {
-                    sfViewModel.taskState = sfViewModel.taskState.copy(
+                    sfacgViewModel.taskState = sfacgViewModel.taskState.copy(
                         beginCount = it.beginCount,
                         endCount = it.endCount
                     )
@@ -389,22 +390,22 @@ fun OptionSFContext(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(isMark, {
                 isMark = it
-                sfViewModel.taskState = sfViewModel.taskState.copy(isMark = isMark)
+                sfacgViewModel.taskState = sfacgViewModel.taskState.copy(isMark = isMark)
             })
             Text(stringResource(R.string.option_sf_12))
         }
 
         Button(
             onClick = {
-                if (sfViewModel.taskState.taskName.isNotBlank()) {
+                if (sfacgViewModel.taskState.taskName.isNotBlank()) {
                     var taskID: Long?
                     CoroutineScope(Dispatchers.IO).launch {
-                        taskID = sfViewModel.insertTask(sfViewModel.taskState)
+                        taskID = sfacgViewModel.insertTask(sfacgViewModel.taskState)
                         withContext(Dispatchers.Main) {
-                            sfViewModel.taskState = sfViewModel.taskState.copy(
+                            sfacgViewModel.taskState = sfacgViewModel.taskState.copy(
                                 taskID = taskID
                             )
-                            navController.navigate("${Screen.SPIDER.route}?taskID=${sfViewModel.taskState.taskID}")
+                            navController.navigate("${Screen.SPIDER.route}?taskID=${sfacgViewModel.taskState.taskID}")
                         }
                     }
                 } else {
@@ -428,7 +429,7 @@ fun TagSelectedDialog(
     title: String,
     taskState: SfacgNovelListTask,
     tagsState: UiState<List<SysTag>>,
-    sfViewModel: SFViewModel = hiltViewModel(),
+    sfacgViewModel: SfacgViewModel = hiltViewModel(),
 ) {
     Text(title)
     FlowRow(
@@ -451,7 +452,7 @@ fun TagSelectedDialog(
                             in taskState.antiTags.map { it.tagID } -> TripleSwitch.FALSE
                             else -> TripleSwitch.NULL
                         },
-                        sfViewModel
+                        sfacgViewModel
                     )
                 }
             }
@@ -465,7 +466,7 @@ fun TagSelectedDialog(
 fun TagFilterChip(
     tag: SysTag,
     defaultSelected: TripleSwitch,
-    sfViewModel: SFViewModel = hiltViewModel(),
+    sfacgViewModel: SfacgViewModel = hiltViewModel(),
 ) {
     var selected by remember {
         mutableStateOf(defaultSelected)
@@ -476,15 +477,15 @@ fun TagFilterChip(
             selected = selected.nextKey()
             when (selected) {
                 TripleSwitch.FALSE -> {
-                    sfViewModel.addAntiTag(tag.sysTagId.toString())
+                    sfacgViewModel.addAntiTag(tag.sysTagId.toString())
                 }
 
                 TripleSwitch.NULL -> {
-                    sfViewModel.removeTag(tag.sysTagId.toString())
+                    sfacgViewModel.removeTag(tag.sysTagId.toString())
                 }
 
                 TripleSwitch.TRUE -> {
-                    sfViewModel.addTag(tag.sysTagId.toString())
+                    sfacgViewModel.addTag(tag.sysTagId.toString())
                 }
             }
         },

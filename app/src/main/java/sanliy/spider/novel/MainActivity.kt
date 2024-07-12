@@ -22,7 +22,7 @@ import sanliy.spider.novel.ui.page.HomeScreen
 import sanliy.spider.novel.ui.page.crawler.CrawlerScreen
 import sanliy.spider.novel.ui.page.record.HistoryScreen
 import sanliy.spider.novel.ui.page.record.MarkScreen
-import sanliy.spider.novel.ui.page.sfacg.OptionSF
+import sanliy.spider.novel.ui.page.sfacg.SfacgScreen
 import sanliy.spider.novel.ui.theme.Novel_SpiderTheme
 
 
@@ -70,7 +70,7 @@ fun MainNavHost(
         startDestination = startDestination
     ) {
         composable(Screen.HOME.route) { HomeScreen(navController) }
-        composable(Screen.OPTION_SF.route) { OptionSF(navController) }
+        composable(Screen.OPTION_SF.route) { SfacgScreen(navController) }
         composable(Screen.HISTORY.route) { HistoryScreen(navController) }
         composable(Screen.MARK.route) { MarkScreen(navController) }
         composable(

@@ -22,7 +22,7 @@ import sanliy.spider.novel.room.model.Tag
 import javax.inject.Inject
 
 @HiltViewModel
-class SFViewModel @Inject constructor(
+class SfacgViewModel @Inject constructor(
     private val taskRepository: TaskRepository,
     private val tagRepository: TagRepository,
     private val genreRepository: GenreRepository,
