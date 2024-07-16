@@ -45,7 +45,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import sanliy.spider.novel.R
 import sanliy.spider.novel.Screen
-import sanliy.spider.novel.room.model.SfacgNovelListTask
+import sanliy.spider.novel.room.model.SfacgNovelListTaskImpl
 import sanliy.spider.novel.ui.page.TextWithPressTopBar
 import sanliy.spider.novel.ui.theme.Novel_SpiderTheme
 
@@ -57,7 +57,7 @@ fun CrawlerScreen(
     taskID: Long,
     crawlerViewModel: CrawlerViewModel = hiltViewModel(),
 ) {
-    val task by crawlerViewModel.getTask(taskID).collectAsState(SfacgNovelListTask(null))
+    val task by crawlerViewModel.getTask(taskID).collectAsState(SfacgNovelListTaskImpl(null))
     Scaffold(
         Modifier.fillMaxSize(),
         topBar = {
@@ -77,7 +77,7 @@ fun CrawlerScreen(
 @Composable
 fun SfCrawlerContext(
     paddingValues: PaddingValues,
-    task: SfacgNovelListTask,
+    task: SfacgNovelListTaskImpl,
     crawlerViewModel: CrawlerViewModel = hiltViewModel(),
 ) {
     val state = ScrollState(0)
@@ -166,7 +166,7 @@ fun SfCrawlerContext(
 @Preview(showBackground = true)
 fun SfCrawlerContextPreview() {
     Novel_SpiderTheme {
-        SfCrawlerContext(paddingValues = PaddingValues(0.dp), SfacgNovelListTask(0))
+        SfCrawlerContext(paddingValues = PaddingValues(0.dp), SfacgNovelListTaskImpl(0))
     }
 }
 

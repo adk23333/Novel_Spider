@@ -16,9 +16,9 @@ import sanliy.spider.novel.net.sfacg.SysTag
 import sanliy.spider.novel.repository.GenreRepository
 import sanliy.spider.novel.repository.TagRepository
 import sanliy.spider.novel.repository.TaskRepository
-import sanliy.spider.novel.room.model.Genre
-import sanliy.spider.novel.room.model.SfacgNovelListTask
-import sanliy.spider.novel.room.model.Tag
+import sanliy.spider.novel.room.model.GenreImpl
+import sanliy.spider.novel.room.model.SfacgNovelListTaskImpl
+import sanliy.spider.novel.room.model.TagImpl
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,7 +27,7 @@ class SfacgViewModel @Inject constructor(
     private val tagRepository: TagRepository,
     private val genreRepository: GenreRepository,
 ) : ViewModel() {
-    var taskState by mutableStateOf(SfacgNovelListTask(null))
+    var taskState by mutableStateOf(SfacgNovelListTaskImpl(null))
     suspend fun getSfacgGenres(): UiState<List<NovelType>> {
         return genreRepository.getSfacgGenres().fold(
             onSuccess = {
@@ -73,7 +73,7 @@ class SfacgViewModel @Inject constructor(
         }
     }
 
-    fun getTags(vararg sysTagID: String): Flow<List<Tag>> {
+    fun getTags(vararg sysTagID: String): Flow<List<TagImpl>> {
         return tagRepository.getWithSfacgAndID(*sysTagID)
     }
 
@@ -82,7 +82,7 @@ class SfacgViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             sysTag.forEach {
                 tagRepository.insertTag(
-                    Tag(
+                    TagImpl(
                         it.sysTagId.toString(),
                         NovelPlatform.SFACG,
                         it.tagName
@@ -97,7 +97,7 @@ class SfacgViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             genre.forEach {
                 genreRepository.insertGenre(
-                    Genre(
+                    GenreImpl(
                         it.typeId.toString(),
                         NovelPlatform.SFACG,
                         it.typeName
@@ -107,12 +107,12 @@ class SfacgViewModel @Inject constructor(
         }
     }
 
-    suspend fun getGenreName(genreID: String): Genre {
+    suspend fun getGenreName(genreID: String): GenreImpl {
         return genreRepository.getSfacgGenre(genreID)
     }
 
 
-    fun insertTask(task: SfacgNovelListTask): Long {
+    fun insertTask(task: SfacgNovelListTaskImpl): Long {
         return taskRepository.insertSfacgNLT(task)
     }
 

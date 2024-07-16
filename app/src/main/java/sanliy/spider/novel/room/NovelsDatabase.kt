@@ -12,17 +12,17 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import sanliy.spider.novel.NovelApplication
-import sanliy.spider.novel.room.model.Genre
-import sanliy.spider.novel.room.model.SfacgNovel
-import sanliy.spider.novel.room.model.SfacgNovelListTask
-import sanliy.spider.novel.room.model.Tag
+import sanliy.spider.novel.room.model.GenreImpl
+import sanliy.spider.novel.room.model.SfacgNovelImpl
+import sanliy.spider.novel.room.model.SfacgNovelListTaskImpl
+import sanliy.spider.novel.room.model.TagImpl
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import javax.inject.Singleton
 
 @Database(
-    entities = [SfacgNovel::class, SfacgNovelListTask::class, Tag::class, Genre::class],
+    entities = [SfacgNovelImpl::class, SfacgNovelListTaskImpl::class, TagImpl::class, GenreImpl::class],
     version = 1,
     exportSchema = false
 )
@@ -92,22 +92,22 @@ class Converters {
     }
 
     @TypeConverter
-    fun tagsToString(tags: List<Tag>): String {
+    fun tagsToString(tags: List<TagImpl>): String {
         return Json.encodeToString(tags)
     }
 
     @TypeConverter
-    fun stringToTags(value: String): List<Tag> {
-        return Json.decodeFromString<List<Tag>>(value)
+    fun stringToTags(value: String): List<TagImpl> {
+        return Json.decodeFromString<List<TagImpl>>(value)
     }
 
     @TypeConverter
-    fun genreToString(genre: Genre): String {
+    fun genreToString(genre: GenreImpl): String {
         return Json.encodeToString(genre)
     }
 
     @TypeConverter
-    fun stringToGenre(value: String): Genre {
-        return Json.decodeFromString<Genre>(value)
+    fun stringToGenre(value: String): GenreImpl {
+        return Json.decodeFromString<GenreImpl>(value)
     }
 }

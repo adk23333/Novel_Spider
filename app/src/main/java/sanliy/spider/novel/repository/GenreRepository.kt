@@ -5,7 +5,7 @@ import sanliy.spider.novel.model.NovelPlatform
 import sanliy.spider.novel.net.sfacg.ResponseNovelTypes
 import sanliy.spider.novel.net.sfacg.SfacgService
 import sanliy.spider.novel.room.GenreDao
-import sanliy.spider.novel.room.model.Genre
+import sanliy.spider.novel.room.model.GenreImpl
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,7 +14,7 @@ class GenreRepository @Inject constructor(
     private val genreDao: GenreDao,
     private val sfacgService: SfacgService,
 ) {
-    suspend fun getSfacgGenre(genreID: String): Genre {
+    suspend fun getSfacgGenre(genreID: String): GenreImpl {
         return genreDao.getSfacgGenreWithId(genreID, NovelPlatform.SFACG)
     }
 
@@ -22,11 +22,11 @@ class GenreRepository @Inject constructor(
         sfacgService.getNovelTypes().body()
     }
 
-    suspend fun insertGenre(vararg genre: Genre) {
+    suspend fun insertGenre(vararg genre: GenreImpl) {
         genreDao.insert(*genre)
     }
 
-    suspend fun getSfacgGenreByName(name: String): Genre? {
+    suspend fun getSfacgGenreByName(name: String): GenreImpl? {
         return genreDao.getGenreByName(name, NovelPlatform.SFACG)
     }
 }

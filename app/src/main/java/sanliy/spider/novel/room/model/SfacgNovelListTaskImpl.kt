@@ -3,8 +3,8 @@ package sanliy.spider.novel.room.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import sanliy.spider.novel.model.ISfacgNLT
 import sanliy.spider.novel.model.NovelPlatform
+import sanliy.spider.novel.model.SfacgNovelListTask
 import sanliy.spider.novel.net.sfacg.CharCount
 import sanliy.spider.novel.net.sfacg.FinishedStatus
 import sanliy.spider.novel.net.sfacg.FreeStatus
@@ -13,7 +13,7 @@ import sanliy.spider.novel.net.sfacg.UpdatedDate
 import java.time.LocalDateTime
 
 @Entity(tableName = "sfacg_novel_list_task")
-data class SfacgNovelListTask(
+data class SfacgNovelListTaskImpl(
     @PrimaryKey
     @ColumnInfo("task_id") override var taskID: Long?,
     @ColumnInfo("task_name") override var taskName: String = "DefaultTask",
@@ -22,7 +22,7 @@ data class SfacgNovelListTask(
     @ColumnInfo("is_delete") override var isDelete: Boolean = false,
     @ColumnInfo("created") override var created: LocalDateTime = LocalDateTime.now(),
     @ColumnInfo("updated") override var updated: LocalDateTime = LocalDateTime.now(),
-    @ColumnInfo("novel_genre") override var genre: Genre = Genre.DefaultSFACG,
+    @ColumnInfo("novel_genre") override var genre: GenreImpl = GenreImpl.DefaultSFACG,
     @ColumnInfo("novels_num") override var novelsNum: Int = 0,
     @ColumnInfo("start_page") override var startPage: Int = 1,
     @ColumnInfo("end_page") override var endPage: Int = 0,
@@ -33,10 +33,10 @@ data class SfacgNovelListTask(
     @ColumnInfo("is_finish") override var isFinish: FinishedStatus = FinishedStatus.BOTH,
     @ColumnInfo("is_free") override var isFree: FreeStatus = FreeStatus.BOTH,
     @ColumnInfo("sort") override var sort: Sort = Sort.LATEST,
-    @ColumnInfo("novels_id") override var tags: List<Tag> = listOf(),
-    @ColumnInfo("anti_novels_id") override var antiTags: List<Tag> = listOf(),
-) : ISfacgNLT {
-    fun addTag(tag: Tag): SfacgNovelListTask {
+    @ColumnInfo("novels_id") override var tags: List<TagImpl> = listOf(),
+    @ColumnInfo("anti_novels_id") override var antiTags: List<TagImpl> = listOf(),
+) : SfacgNovelListTask {
+    fun addTag(tag: TagImpl): SfacgNovelListTaskImpl {
         val mTags = tags.toMutableList()
         val mAntiTags = antiTags.toMutableList()
         mTags.add(tag)
@@ -44,7 +44,7 @@ data class SfacgNovelListTask(
         return this.copy(tags = mTags, antiTags = mAntiTags)
     }
 
-    fun addAntiTag(tag: Tag): SfacgNovelListTask {
+    fun addAntiTag(tag: TagImpl): SfacgNovelListTaskImpl {
         val mTags = tags.toMutableList()
         val mAntiTags = antiTags.toMutableList()
         mAntiTags.add(tag)
@@ -52,7 +52,7 @@ data class SfacgNovelListTask(
         return this.copy(tags = mTags, antiTags = mAntiTags)
     }
 
-    fun removeTag(tag: Tag): SfacgNovelListTask {
+    fun removeTag(tag: TagImpl): SfacgNovelListTaskImpl {
         val mTags = tags.toMutableList()
         val mAntiTags = antiTags.toMutableList()
         mTags.removeIf { it.tagID == tag.tagID }

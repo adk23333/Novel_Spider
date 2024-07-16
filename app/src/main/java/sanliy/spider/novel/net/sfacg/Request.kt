@@ -1,6 +1,6 @@
 package sanliy.spider.novel.net.sfacg
 
-import sanliy.spider.novel.room.model.Genre
+import sanliy.spider.novel.room.model.GenreImpl
 
 
 data class RequestNovels(
@@ -12,7 +12,7 @@ data class RequestNovels(
     override var size: Int = 20,
     override var sort: Sort = Sort.LATEST,
     override var updatedays: UpdatedDate = UpdatedDate.UN_LIMIT,
-    override var type: Genre = Genre.DefaultSFACG,
+    override var type: GenreImpl = GenreImpl.DefaultSFACG,
 ) : IRequestNovels
 
 

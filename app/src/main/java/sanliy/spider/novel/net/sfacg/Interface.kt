@@ -1,6 +1,6 @@
 package sanliy.spider.novel.net.sfacg
 
-import sanliy.spider.novel.room.model.Genre
+import sanliy.spider.novel.room.model.GenreImpl
 
 interface IStatus {
     val httpCode: Int
@@ -72,7 +72,7 @@ interface IRequestNovels {
     val size: Int
     val sort: Sort
     val updatedays: UpdatedDate
-    val type: Genre
+    val type: GenreImpl
 }
 
 interface INovelType {

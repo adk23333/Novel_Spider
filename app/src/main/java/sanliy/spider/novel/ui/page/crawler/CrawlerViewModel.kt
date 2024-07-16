@@ -21,10 +21,10 @@ import sanliy.spider.novel.repository.FileRepository
 import sanliy.spider.novel.repository.GenreRepository
 import sanliy.spider.novel.repository.NovelRepository
 import sanliy.spider.novel.repository.TaskRepository
-import sanliy.spider.novel.room.model.Genre
-import sanliy.spider.novel.room.model.SfacgNovel
-import sanliy.spider.novel.room.model.SfacgNovelListTask
-import sanliy.spider.novel.room.model.Tag
+import sanliy.spider.novel.room.model.GenreImpl
+import sanliy.spider.novel.room.model.SfacgNovelImpl
+import sanliy.spider.novel.room.model.SfacgNovelListTaskImpl
+import sanliy.spider.novel.room.model.TagImpl
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -45,7 +45,7 @@ class CrawlerViewModel @Inject constructor(
     val logs = mutableStateListOf("准备开始...")
 
 
-    fun finishTask(task: SfacgNovelListTask) {
+    fun finishTask(task: SfacgNovelListTaskImpl) {
         page = task.startPage
         viewModelScope.launch {
             val jobs = mutableListOf<Job>()
@@ -65,7 +65,7 @@ class CrawlerViewModel @Inject constructor(
         }
     }
 
-    private suspend fun runJob(task: SfacgNovelListTask): Boolean? {
+    private suspend fun runJob(task: SfacgNovelListTaskImpl): Boolean? {
         val mPage: Int
         mutex.withLock {
             mPage = page
@@ -80,7 +80,7 @@ class CrawlerViewModel @Inject constructor(
                     true
                 } else {
                     val novels = it.data.map { novel ->
-                        val sfacgNovel = SfacgNovel(
+                        val sfacgNovel = SfacgNovelImpl(
                             novel.novelId.toString(),
                             task.taskID!!,
                             NovelPlatform.SFACG,
@@ -89,7 +89,7 @@ class CrawlerViewModel @Inject constructor(
                             novel.authorId.toString(),
                             novel.authorName,
                             novel.expand.sysTags.map { sysTag ->
-                                Tag(
+                                TagImpl(
                                     sysTag.sysTagId.toString(),
                                     NovelPlatform.SFACG,
                                     sysTag.tagName
@@ -107,7 +107,7 @@ class CrawlerViewModel @Inject constructor(
                             LocalDateTime.parse(novel.addTime),
                             novel.isSensitive,
                             novel.signStatus,
-                            getGenre(novel.expand.typeName) ?: Genre.DefaultSFACG,
+                            getGenre(novel.expand.typeName) ?: GenreImpl.DefaultSFACG,
                             novel.categoryId
                         )
                         mutex.withLock {
@@ -130,18 +130,18 @@ class CrawlerViewModel @Inject constructor(
         )
     }
 
-    fun getTask(taskID: Long): Flow<SfacgNovelListTask> {
+    fun getTask(taskID: Long): Flow<SfacgNovelListTaskImpl> {
         return taskRepository.getTaskByID(taskID).filterNotNull()
     }
 
-    fun shareToExcel(task: SfacgNovelListTask) {
+    fun shareToExcel(task: SfacgNovelListTaskImpl) {
         viewModelScope.launch(Dispatchers.IO) {
             val novels = novelRepository.getSfacgWithTask(task)
             fileRepository.writeToExcelAndShare(task, novels)
         }
     }
 
-    suspend fun getGenre(name: String): Genre? {
+    suspend fun getGenre(name: String): GenreImpl? {
         return genreRepository.getSfacgGenreByName(name)
     }
 }

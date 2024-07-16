@@ -6,7 +6,7 @@ import sanliy.spider.novel.model.NovelPlatform
 import sanliy.spider.novel.net.sfacg.ResponseSysTag
 import sanliy.spider.novel.net.sfacg.SfacgService
 import sanliy.spider.novel.room.TagDao
-import sanliy.spider.novel.room.model.Tag
+import sanliy.spider.novel.room.model.TagImpl
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,11 +15,11 @@ class TagRepository @Inject constructor(
     private val tagDao: TagDao,
     private val sfacgService: SfacgService,
 ) {
-    fun getWithSfacgAndID(vararg tagID: String): Flow<List<Tag>> {
+    fun getWithSfacgAndID(vararg tagID: String): Flow<List<TagImpl>> {
         return tagDao.getWithId(*tagID, platform = NovelPlatform.SFACG)
     }
 
-    suspend fun getByIdWithSfacg(tagID: String): Tag {
+    suspend fun getByIdWithSfacg(tagID: String): TagImpl {
         return tagDao.getById(tagID, NovelPlatform.SFACG)
     }
 
@@ -27,15 +27,15 @@ class TagRepository @Inject constructor(
         return tagDao.getWithName(tagName, NovelPlatform.SFACG).tagID
     }
 
-    fun getTags(platform: NovelPlatform): Flow<List<Tag>> {
+    fun getTags(platform: NovelPlatform): Flow<List<TagImpl>> {
         return tagDao.getWithPlatform(platform)
     }
 
-    suspend fun updateTag(tag: Tag) {
+    suspend fun updateTag(tag: TagImpl) {
         tagDao.update(tag)
     }
 
-    suspend fun insertTag(tag: Tag) {
+    suspend fun insertTag(tag: TagImpl) {
         tagDao.insert(tag)
     }
 

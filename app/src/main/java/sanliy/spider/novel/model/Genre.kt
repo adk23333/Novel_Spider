@@ -1,6 +1,6 @@
 package sanliy.spider.novel.model
 
-interface IGenre {
+interface Genre {
     val genreID: String
     val platform: NovelPlatform
     val genreName: String

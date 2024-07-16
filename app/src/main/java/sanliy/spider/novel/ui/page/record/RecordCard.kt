@@ -39,8 +39,8 @@ import sanliy.spider.novel.R
 import sanliy.spider.novel.Screen
 import sanliy.spider.novel.model.NovelPlatform
 import sanliy.spider.novel.net.sfacg.CharCount
-import sanliy.spider.novel.room.model.SfacgNovelListTask
-import sanliy.spider.novel.room.model.Tag
+import sanliy.spider.novel.room.model.SfacgNovelListTaskImpl
+import sanliy.spider.novel.room.model.TagImpl
 import sanliy.spider.novel.room.model.toTagNameList
 import sanliy.spider.novel.ui.theme.Novel_SpiderTheme
 import java.time.format.DateTimeFormatter
@@ -48,7 +48,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun RecordCard(
     modifier: Modifier = Modifier,
-    task: SfacgNovelListTask = SfacgNovelListTask(null),
+    task: SfacgNovelListTaskImpl = SfacgNovelListTaskImpl(null),
     color: Color = MaterialTheme.colorScheme.surface,
     onClickSurface: () -> Unit = {},
     onClickExtend: (() -> Unit)? = null,
@@ -119,7 +119,7 @@ fun RecordCardPreview() {
 
 @Composable
 fun DetailsBottomSheet(
-    task: SfacgNovelListTask,
+    task: SfacgNovelListTaskImpl,
     navController: NavHostController = rememberNavController(),
     actionContext: @Composable (() -> Unit),
 ) {
@@ -231,11 +231,11 @@ fun DetailsBottomSheet(
 @Preview(showBackground = true)
 fun DetailsBottomSheetPreview() {
     DetailsBottomSheet(
-        task = SfacgNovelListTask(
+        task = SfacgNovelListTaskImpl(
             1,
             tags = listOf(
-                Tag("123", NovelPlatform.SFACG, "一二三"),
-                Tag("456", NovelPlatform.SFACG, "四五六"),
+                TagImpl("123", NovelPlatform.SFACG, "一二三"),
+                TagImpl("456", NovelPlatform.SFACG, "四五六"),
             )
         )
     ) {

@@ -4,8 +4,8 @@ import io.ktor.client.call.body
 import sanliy.spider.novel.net.sfacg.ResponseNovels
 import sanliy.spider.novel.net.sfacg.SfacgService
 import sanliy.spider.novel.room.SfacgNovelDao
-import sanliy.spider.novel.room.model.SfacgNovel
-import sanliy.spider.novel.room.model.SfacgNovelListTask
+import sanliy.spider.novel.room.model.SfacgNovelImpl
+import sanliy.spider.novel.room.model.SfacgNovelListTaskImpl
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,19 +16,19 @@ class NovelRepository @Inject constructor(
     private val sfacgService: SfacgService,
 ) {
 
-    suspend fun insertSfacg(vararg novels: SfacgNovel) {
+    suspend fun insertSfacg(vararg novels: SfacgNovelImpl) {
         sfacgNovelDao.insert(*novels)
     }
 
-    suspend fun deleteSfacgForTask(task: SfacgNovelListTask) {
+    suspend fun deleteSfacgForTask(task: SfacgNovelListTaskImpl) {
         sfacgNovelDao.deleteForTask(task.taskID!!)
     }
 
-    suspend fun getSfacgWithTask(task: SfacgNovelListTask): List<SfacgNovel> {
+    suspend fun getSfacgWithTask(task: SfacgNovelListTaskImpl): List<SfacgNovelImpl> {
         return sfacgNovelDao.getWithTask(task.taskID!!)
     }
 
-    suspend fun getNovels(novelsType: Int, task: SfacgNovelListTask): ResponseNovels {
+    suspend fun getNovels(novelsType: Int, task: SfacgNovelListTaskImpl): ResponseNovels {
         return sfacgService.getNovels(novelsType, task).body()
     }
 }

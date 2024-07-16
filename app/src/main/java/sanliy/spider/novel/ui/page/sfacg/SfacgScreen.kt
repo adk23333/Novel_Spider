@@ -76,8 +76,8 @@ import sanliy.spider.novel.net.sfacg.UpdatedDate
 import sanliy.spider.novel.onFailure
 import sanliy.spider.novel.onLoading
 import sanliy.spider.novel.onSuccess
-import sanliy.spider.novel.room.model.Genre
-import sanliy.spider.novel.room.model.SfacgNovelListTask
+import sanliy.spider.novel.room.model.GenreImpl
+import sanliy.spider.novel.room.model.SfacgNovelListTaskImpl
 import sanliy.spider.novel.room.model.toTagNameList
 import sanliy.spider.novel.ui.page.SingleSelectionFilterChipList
 import sanliy.spider.novel.ui.page.TextWithPressTopBar
@@ -274,7 +274,7 @@ fun SfacgContext(
                         ) {
                             sfacgViewModel.taskState =
                                 sfacgViewModel.taskState.copy(
-                                    genre = Genre(
+                                    genre = GenreImpl(
                                         it.typeId.toString(),
                                         NovelPlatform.SFACG,
                                         it.typeName
@@ -427,7 +427,7 @@ fun SfacgContext(
 @Composable
 fun TagSelectedDialog(
     title: String,
-    taskState: SfacgNovelListTask,
+    taskState: SfacgNovelListTaskImpl,
     tagsState: UiState<List<SysTag>>,
     sfacgViewModel: SfacgViewModel = hiltViewModel(),
 ) {

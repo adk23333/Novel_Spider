@@ -8,7 +8,7 @@ import kotlinx.coroutines.launch
 import sanliy.spider.novel.repository.FileRepository
 import sanliy.spider.novel.repository.NovelRepository
 import sanliy.spider.novel.repository.TaskRepository
-import sanliy.spider.novel.room.model.SfacgNovelListTask
+import sanliy.spider.novel.room.model.SfacgNovelListTaskImpl
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,7 +21,7 @@ class RecordViewModel @Inject constructor(
     val tasks by lazy { taskRepository.getTasks() }
     val markTasks by lazy { taskRepository.getMarkedTasks() }
 
-    fun delete(task: SfacgNovelListTask) {
+    fun delete(task: SfacgNovelListTaskImpl) {
         viewModelScope.launch(Dispatchers.IO) {
             taskRepository.updateTask(task.copy(isDelete = true))
             novelRepository.deleteSfacgForTask(task)
@@ -31,13 +31,13 @@ class RecordViewModel @Inject constructor(
         }
     }
 
-    fun switchIsMark(task: SfacgNovelListTask) {
+    fun switchIsMark(task: SfacgNovelListTaskImpl) {
         viewModelScope.launch(Dispatchers.IO) {
             taskRepository.updateTask(task.copy(isMark = !task.isMark))
         }
     }
 
-    fun writeExcel(task: SfacgNovelListTask) {
+    fun writeExcel(task: SfacgNovelListTaskImpl) {
         viewModelScope.launch(Dispatchers.IO) {
             val novels = novelRepository.getSfacgWithTask(task)
             fileRepository.writeToExcelAndShare(task, novels)

@@ -6,7 +6,7 @@ import sanliy.spider.novel.net.sfacg.Sort
 import sanliy.spider.novel.net.sfacg.UpdatedDate
 import java.time.LocalDateTime
 
-interface IBaseTask {
+interface BaseTask {
     val taskID: Long?
     val taskName: String
     val platform: NovelPlatform
@@ -17,22 +17,22 @@ interface IBaseTask {
 }
 
 
-interface INovelListTask : IBaseTask {
+interface NovelListTask : BaseTask {
     val novelsNum: Int
     val startPage: Int
     val endPage: Int
 }
 
-interface ISfacgNLT : INovelListTask {
+interface SfacgNovelListTask : NovelListTask {
     val beginCount: Int
     val endCount: Int
     val updateDate: UpdatedDate
-    val genre: IGenre
+    val genre: Genre
     val expand: String
     val isFinish: FinishedStatus
     val isFree: FreeStatus
     val sort: Sort
-    val tags: List<ITag>
-    val antiTags: List<ITag>
+    val tags: List<Tag>
+    val antiTags: List<Tag>
 }
 

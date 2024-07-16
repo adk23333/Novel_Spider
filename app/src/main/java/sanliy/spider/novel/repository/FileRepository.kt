@@ -12,8 +12,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import sanliy.spider.novel.R
-import sanliy.spider.novel.room.model.SfacgNovel
-import sanliy.spider.novel.room.model.SfacgNovelListTask
+import sanliy.spider.novel.room.model.SfacgNovelImpl
+import sanliy.spider.novel.room.model.SfacgNovelListTaskImpl
 import java.io.File
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -27,7 +27,7 @@ class FileRepository @Inject constructor(
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
     val excelPath = "$documentPath/${application.packageName}"
 
-    suspend fun writeToExcelAndShare(task: SfacgNovelListTask, novels: List<SfacgNovel>) {
+    suspend fun writeToExcelAndShare(task: SfacgNovelListTaskImpl, novels: List<SfacgNovelImpl>) {
         val fileName = "ID-${task.taskID}-${task.taskName}.xlsx"
 
         var file = File(excelPath)
@@ -45,7 +45,7 @@ class FileRepository @Inject constructor(
         shareExcel(File(excelPath, fileName))
     }
 
-    private fun writeNovelsToExcel(novels: List<SfacgNovel>, filePath: String) {
+    private fun writeNovelsToExcel(novels: List<SfacgNovelImpl>, filePath: String) {
         val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
         workbook {
             sheet {

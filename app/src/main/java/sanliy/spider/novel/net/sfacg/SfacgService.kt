@@ -5,7 +5,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.url
 import io.ktor.client.statement.HttpResponse
-import sanliy.spider.novel.model.ISfacgNLT
+import sanliy.spider.novel.model.SfacgNovelListTask
 import sanliy.spider.novel.net.NetworkModule
 import javax.inject.Inject
 import javax.inject.Named
@@ -22,7 +22,7 @@ class SfacgService @Inject constructor(
     }
 
 
-    suspend fun getNovels(page: Int, task: ISfacgNLT): HttpResponse {
+    suspend fun getNovels(page: Int, task: SfacgNovelListTask): HttpResponse {
         return client.get {
             url("novels/${task.genre.genreID}/sysTags/novels")
             parameter("charcountbegin", task.beginCount)

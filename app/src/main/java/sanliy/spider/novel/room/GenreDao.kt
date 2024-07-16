@@ -8,26 +8,26 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import sanliy.spider.novel.model.NovelPlatform
-import sanliy.spider.novel.room.model.Genre
+import sanliy.spider.novel.room.model.GenreImpl
 
 @Dao
 interface GenreDao {
     @Query("SELECT * FROM genres WHERE platform = :platform")
-    fun getWithPlatform(platform: NovelPlatform): Flow<List<Genre>>
+    fun getWithPlatform(platform: NovelPlatform): Flow<List<GenreImpl>>
 
     @Query("SELECT * FROM genres WHERE genre_id = :genreID AND platform = :platform")
-    suspend fun getSfacgGenreWithId(genreID: String, platform: NovelPlatform): Genre
+    suspend fun getSfacgGenreWithId(genreID: String, platform: NovelPlatform): GenreImpl
 
     @Query("SELECT * FROM genres WHERE genre_name = :name AND platform = :platform")
-    suspend fun getGenreByName(name: String, platform: NovelPlatform): Genre?
+    suspend fun getGenreByName(name: String, platform: NovelPlatform): GenreImpl?
 
     @Delete
-    fun delete(genre: Genre)
+    fun delete(genre: GenreImpl)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(vararg genre: Genre)
+    fun insert(vararg genre: GenreImpl)
 
     @Update
-    fun update(genre: Genre)
+    fun update(genre: GenreImpl)
 
 }

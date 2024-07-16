@@ -2,7 +2,7 @@ package sanliy.spider.novel.net.sfacg
 
 import kotlinx.serialization.Serializable
 import sanliy.spider.novel.model.NovelPlatform
-import sanliy.spider.novel.room.model.Tag
+import sanliy.spider.novel.room.model.TagImpl
 
 
 @Serializable
@@ -57,10 +57,10 @@ data class BaseSysTag(
     override val tagName: String,
 ) : IBaseSysTag
 
-fun List<BaseSysTag>.toTags(): List<Tag> {
-    val temp = mutableListOf<Tag>()
+fun List<BaseSysTag>.toTags(): List<TagImpl> {
+    val temp = mutableListOf<TagImpl>()
     this.forEach {
-        temp.add(Tag(it.sysTagId.toString(), NovelPlatform.SFACG, it.tagName))
+        temp.add(TagImpl(it.sysTagId.toString(), NovelPlatform.SFACG, it.tagName))
     }
     return temp
 }

@@ -39,17 +39,17 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import sanliy.spider.novel.Screen
-import sanliy.spider.novel.room.model.SfacgNovelListTask
+import sanliy.spider.novel.room.model.SfacgNovelListTaskImpl
 import sanliy.spider.novel.ui.page.TextWithPressTopBar
 
 @Composable
 fun MarkContent(
     title: String,
-    tasks: List<SfacgNovelListTask>,
+    tasks: List<SfacgNovelListTaskImpl>,
     navController: NavHostController = rememberNavController(),
-    onClickDelete: (it: SfacgNovelListTask) -> Unit,
-    onClickMark: (it: SfacgNovelListTask) -> Unit,
-    onClickShare: (it: SfacgNovelListTask) -> Unit,
+    onClickDelete: (it: SfacgNovelListTaskImpl) -> Unit,
+    onClickMark: (it: SfacgNovelListTaskImpl) -> Unit,
+    onClickShare: (it: SfacgNovelListTaskImpl) -> Unit,
 ) {
     val sheetState: SheetState = rememberModalBottomSheetState()
     var bottomSheetIndex: Int? by remember { mutableStateOf(null) }
@@ -161,9 +161,9 @@ fun MarkContent(
 @Composable
 @Preview(showBackground = true)
 fun MarkContextPreview() {
-    val tasks = mutableListOf<SfacgNovelListTask>()
+    val tasks = mutableListOf<SfacgNovelListTaskImpl>()
     repeat(30) {
-        tasks.add(SfacgNovelListTask(it.toLong()))
+        tasks.add(SfacgNovelListTaskImpl(it.toLong()))
     }
     MarkContent("测试页面", tasks, onClickDelete = {}, onClickMark = {}) {}
 }

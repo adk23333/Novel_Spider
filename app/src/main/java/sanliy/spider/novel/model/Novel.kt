@@ -2,7 +2,7 @@ package sanliy.spider.novel.model
 
 import java.time.LocalDateTime
 
-interface IBaseNovel {
+interface BaseNovel {
     val novelID: String
     val taskID: Long
     val platform: NovelPlatform
@@ -10,10 +10,10 @@ interface IBaseNovel {
     val novelIntro: String
     val authorID: String
     val authorName: String
-    val tags: List<ITag>
+    val tags: List<Tag>
 }
 
-interface ISfacgNovel : IBaseNovel {
+interface SfacgNovel : BaseNovel {
     val lastUpdateTime: LocalDateTime
     val markCount: Int
     val novelCover: String
@@ -26,7 +26,7 @@ interface ISfacgNovel : IBaseNovel {
     val createdTime: LocalDateTime
     val isSensitive: Boolean
     val signStatus: String
-    val genre: IGenre
+    val genre: Genre
     val categoryId: Int //小说类型，如对话小说
 }
 
