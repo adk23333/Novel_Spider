@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import sanliy.spider.novel.model.NovelPlatform
+import sanliy.spider.novel.repository.FileRepository
 import sanliy.spider.novel.repository.GenreRepository
 import sanliy.spider.novel.repository.NovelRepository
 import sanliy.spider.novel.repository.TaskRepository
@@ -24,7 +25,6 @@ import sanliy.spider.novel.room.model.Genre
 import sanliy.spider.novel.room.model.SfacgNovel
 import sanliy.spider.novel.room.model.SfacgNovelListTask
 import sanliy.spider.novel.room.model.Tag
-import sanliy.spider.novel.share.writeToExcelAndShare
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -33,6 +33,7 @@ class CrawlerViewModel @Inject constructor(
     private val novelRepository: NovelRepository,
     private val taskRepository: TaskRepository,
     private val genreRepository: GenreRepository,
+    private val fileRepository: FileRepository,
 ) : ViewModel() {
     private val mutex = Mutex()
     private var page = 1
@@ -136,7 +137,7 @@ class CrawlerViewModel @Inject constructor(
     fun shareToExcel(task: SfacgNovelListTask) {
         viewModelScope.launch(Dispatchers.IO) {
             val novels = novelRepository.getSfacgWithTask(task)
-            writeToExcelAndShare(task, novels)
+            fileRepository.writeToExcelAndShare(task, novels)
         }
     }
 
