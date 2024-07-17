@@ -169,6 +169,7 @@ fun DetailsBottomSheet(
 
         }
 
+        actionContext()
 
         Column(
             Modifier
@@ -240,6 +241,6 @@ fun DetailsBottomSheetPreview() {
             )
         )
     ) {
-
+        Text(text = "Action Context")
     }
 }
