@@ -25,6 +25,7 @@ import sanliy.spider.novel.room.model.GenreImpl
 import sanliy.spider.novel.room.model.SfacgNovelImpl
 import sanliy.spider.novel.room.model.SfacgNovelListTaskImpl
 import sanliy.spider.novel.room.model.TagImpl
+import java.io.File
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -138,6 +139,12 @@ class CrawlerViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val novels = novelRepository.getSfacgWithTask(task)
             val fileName = "ID-${task.taskID}-${task.taskName}.xlsx"
+
+            val file = File(FileRepository.savePath, fileName)
+            if (file.exists()) {
+                file.delete()
+            }
+
             fileRepository.saveToExcel(novels, fileName)
             fileRepository.openFile(fileName)
         }

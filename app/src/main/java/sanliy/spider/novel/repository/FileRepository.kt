@@ -32,11 +32,12 @@ class FileRepository @Inject constructor(
                     fileName.substring(fileName.lastIndexOf(".") + 1)
                 )
         }
+
+        val savePath =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+                .absolutePath + File.separator + APP_DIR_PATH
     }
 
-    val savePath
-        get() = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-            .absolutePath + File.separator + APP_DIR_PATH
 
     fun createAppDir(): Boolean {
         return File(savePath).mkdirs()
@@ -51,10 +52,6 @@ class FileRepository @Inject constructor(
                 Toast.LENGTH_SHORT
             )
                 .show()
-        }
-        val file = File(savePath, fileName)
-        if (file.exists()) {
-            file.delete()
         }
         var maxTagCount = 0
         novels.forEach {
