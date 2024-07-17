@@ -86,9 +86,9 @@ fun SfCrawlerContext(
         logsState.animateScrollToItem(crawlerViewModel.logs.size - 1)
     }
 
-    var logOrderWidth by remember { mutableIntStateOf(16 + 8) }
+    var logOrderWidth by remember { mutableIntStateOf(18 + 8) }
     LaunchedEffect(crawlerViewModel.logSize.toString().length) {
-        logOrderWidth = crawlerViewModel.logSize.toString().length * 16 + 8
+        logOrderWidth = crawlerViewModel.logSize.toString().length * 18 + 8
     }
 
     Column(
@@ -149,7 +149,7 @@ fun SfCrawlerContext(
             }
             Button(
                 onClick = {
-                    crawlerViewModel.shareToExcel(task)
+                    crawlerViewModel.saveToExcelAndShare(task)
                 },
                 enabled = crawlerViewModel.export
             ) {

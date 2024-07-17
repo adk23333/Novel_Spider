@@ -134,10 +134,12 @@ class CrawlerViewModel @Inject constructor(
         return taskRepository.getTaskByID(taskID).filterNotNull()
     }
 
-    fun shareToExcel(task: SfacgNovelListTaskImpl) {
+    fun saveToExcelAndShare(task: SfacgNovelListTaskImpl) {
         viewModelScope.launch(Dispatchers.IO) {
             val novels = novelRepository.getSfacgWithTask(task)
-            fileRepository.writeToExcelAndShare(task, novels)
+            val fileName = "ID-${task.taskID}-${task.taskName}.xlsx"
+            fileRepository.saveToExcel(novels, fileName)
+            fileRepository.openFile(fileName)
         }
     }
 

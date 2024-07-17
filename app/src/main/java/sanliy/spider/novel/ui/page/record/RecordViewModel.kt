@@ -40,7 +40,9 @@ class RecordViewModel @Inject constructor(
     fun writeExcel(task: SfacgNovelListTaskImpl) {
         viewModelScope.launch(Dispatchers.IO) {
             val novels = novelRepository.getSfacgWithTask(task)
-            fileRepository.writeToExcelAndShare(task, novels)
+            val fileName = "ID-${task.taskID}-${task.taskName}.xlsx"
+            fileRepository.saveToExcel(novels, fileName)
+            fileRepository.shareFile(fileName)
         }
     }
 }

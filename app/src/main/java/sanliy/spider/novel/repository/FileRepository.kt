@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Intent
 import android.os.Environment
 import android.util.Log
+import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import io.github.evanrupert.excelkt.workbook
@@ -13,7 +14,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import sanliy.spider.novel.R
 import sanliy.spider.novel.room.model.SfacgNovelImpl
-import sanliy.spider.novel.room.model.SfacgNovelListTaskImpl
 import java.io.File
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -23,29 +23,43 @@ import javax.inject.Singleton
 class FileRepository @Inject constructor(
     private val application: Application,
 ) {
-    val documentPath: File =
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-    val excelPath = "$documentPath/${application.packageName}"
+    companion object {
+        const val APP_PATH = "NovelSpider"
 
-    suspend fun writeToExcelAndShare(task: SfacgNovelListTaskImpl, novels: List<SfacgNovelImpl>) {
-        val fileName = "ID-${task.taskID}-${task.taskName}.xlsx"
+        fun getMimeType(fileName: String): String? {
+            return MimeTypeMap.getSingleton()
+                .getMimeTypeFromExtension(
+                    fileName.substring(fileName.lastIndexOf(".") + 1)
+                )
+        }
+    }
 
-        var file = File(excelPath)
+    val savePath
+        get() = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+            .absolutePath + File.separator + APP_PATH
+
+    suspend fun saveToFile(
+        fileName: String,
+    ) {
+
+        var file = File(savePath)
         file.mkdir()
-        file = File(excelPath, fileName)
+        file = File(savePath, fileName)
 
         if (!file.exists()) {
             withContext(Dispatchers.Main) {
-                Toast.makeText(application, "正在导出文件到${excelPath}文件夹", Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    application,
+                    "正在导出文件到Documents/${APP_PATH}文件夹",
+                    Toast.LENGTH_SHORT
+                )
                     .show()
             }
-            writeNovelsToExcel(novels, "$excelPath/$fileName")
         }
-
-        shareExcel(File(excelPath, fileName))
     }
 
-    private fun writeNovelsToExcel(novels: List<SfacgNovelImpl>, filePath: String) {
+    suspend fun saveToExcel(novels: List<SfacgNovelImpl>, fileName: String) {
+        saveToFile(fileName)
         val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
         workbook {
             sheet {
@@ -89,28 +103,46 @@ class FileRepository @Inject constructor(
                     }
                 }
             }
-        }.write(filePath)
+        }.write("$savePath/$fileName")
 
     }
 
-    private fun shareExcel(file: File) {
+    fun shareFile(fileName: String) {
         try {
             val authority = application.packageName + ".fileprovider"
-            val uri = FileProvider.getUriForFile(application, authority, file)
+            val uri = FileProvider.getUriForFile(application, authority, File(savePath, fileName))
+            val mime = getMimeType(fileName)
             application.startActivity(
                 Intent.createChooser(
                     Intent(Intent.ACTION_SEND).apply {
-                        type = "application/vnd.ms-excel"
+                        setType(mime)
                         putExtra(Intent.EXTRA_STREAM, uri)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                     },
                     application.getString(R.string.spider_sf_2)
-                ).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             )
         } catch (e: Exception) {
-            Log.w(FileRepository::class.simpleName, e.message.toString())
+            Log.w(FileRepository::class.simpleName, e)
             CoroutineScope(Dispatchers.Main).launch {
                 Toast.makeText(application, "发生错误", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    fun openFile(fileName: String) {
+        val authority = application.packageName + ".fileprovider"
+        val mime = getMimeType(fileName)
+        application.startActivity(
+            Intent(Intent.ACTION_VIEW).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                setDataAndType(
+                    FileProvider.getUriForFile(application, authority, File(savePath, fileName)),
+                    mime,
+                )
+            }
+        )
     }
 }
