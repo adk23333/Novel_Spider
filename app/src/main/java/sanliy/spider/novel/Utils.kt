@@ -1,5 +1,7 @@
 package sanliy.spider.novel
 
+import java.time.format.DateTimeFormatter
+
 
 enum class TripleSwitch {
     TRUE {
@@ -73,4 +75,12 @@ inline fun <T> UiState<T>.onLoading(
         onLoading()
     }
     return this
+}
+
+class NovelFormatter {
+    companion object {
+        val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+    }
 }

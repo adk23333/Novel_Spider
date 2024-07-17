@@ -12,10 +12,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import sanliy.spider.novel.NovelFormatter
 import sanliy.spider.novel.R
 import sanliy.spider.novel.room.model.SfacgNovelImpl
 import java.io.File
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -24,7 +24,7 @@ class FileRepository @Inject constructor(
     private val application: Application,
 ) {
     companion object {
-        const val APP_PATH = "NovelSpider"
+        const val APP_DIR_PATH = "NovelSpider"
 
         fun getMimeType(fileName: String): String? {
             return MimeTypeMap.getSingleton()
@@ -36,31 +36,32 @@ class FileRepository @Inject constructor(
 
     val savePath
         get() = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-            .absolutePath + File.separator + APP_PATH
+            .absolutePath + File.separator + APP_DIR_PATH
 
-    suspend fun saveToFile(
-        fileName: String,
-    ) {
-
-        var file = File(savePath)
-        file.mkdir()
-        file = File(savePath, fileName)
-
-        if (!file.exists()) {
-            withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    application,
-                    "正在导出文件到Documents/${APP_PATH}文件夹",
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
-            }
-        }
+    fun createAppDir(): Boolean {
+        return File(savePath).mkdirs()
     }
 
     suspend fun saveToExcel(novels: List<SfacgNovelImpl>, fileName: String) {
-        saveToFile(fileName)
-        val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        createAppDir()
+        withContext(Dispatchers.Main) {
+            Toast.makeText(
+                application,
+                "正在导出文件到Documents/${APP_DIR_PATH}文件夹",
+                Toast.LENGTH_SHORT
+            )
+                .show()
+        }
+        val file = File(savePath, fileName)
+        if (file.exists()) {
+            file.delete()
+        }
+        var maxTagCount = 0
+        novels.forEach {
+            if (it.tags.size > maxTagCount) {
+                maxTagCount = it.tags.size
+            }
+        }
         workbook {
             sheet {
                 row {
@@ -76,11 +77,10 @@ class FileRepository @Inject constructor(
                     cell("bgBanner")
                     cell("评分")
                     cell("建书时间")
-                    cell("敏感的")
-                    cell("标签1")
-                    cell("标签2")
-                    cell("标签3")
-                    cell("标签4")
+                    cell("isSensitive")
+                    repeat(maxTagCount) {
+                        cell("标签 ${it + 1}")
+                    }
                 }
                 novels.forEach {
                     row {
@@ -91,11 +91,11 @@ class FileRepository @Inject constructor(
                         cell(it.isFinish)
                         cell(it.signStatus)
                         cell(it.novelCover)
-                        cell(it.lastUpdateTime.format(pattern))
+                        cell(it.lastUpdateTime.format(NovelFormatter.dateTimeFormatter))
                         cell(it.genre.genreName)
                         cell(it.bgBanner)
                         cell(it.point)
-                        cell(it.createdTime.format(pattern))
+                        cell(it.createdTime.format(NovelFormatter.dateTimeFormatter))
                         cell(it.isSensitive)
                         it.tags.forEach {
                             cell(it.tagName)

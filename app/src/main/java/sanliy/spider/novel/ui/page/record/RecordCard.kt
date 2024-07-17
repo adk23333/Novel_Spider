@@ -35,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import sanliy.spider.novel.NovelFormatter
 import sanliy.spider.novel.R
 import sanliy.spider.novel.Screen
 import sanliy.spider.novel.model.NovelPlatform
@@ -43,7 +44,6 @@ import sanliy.spider.novel.room.model.SfacgNovelListTaskImpl
 import sanliy.spider.novel.room.model.TagImpl
 import sanliy.spider.novel.room.model.toTagNameList
 import sanliy.spider.novel.ui.theme.Novel_SpiderTheme
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun RecordCard(
@@ -82,7 +82,7 @@ fun RecordCard(
                         style = MaterialTheme.typography.bodySmall
                     )
                     Text(
-                        task.created.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                        task.created.format(NovelFormatter.dateTimeFormatter),
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -124,7 +124,6 @@ fun DetailsBottomSheet(
     actionContext: @Composable (() -> Unit),
 ) {
     val scrollState = rememberScrollState()
-    val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
     Column(
         Modifier
             .fillMaxSize()
@@ -215,15 +214,17 @@ fun DetailsBottomSheet(
             }
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
                 Text(text = "任务创建时间")
-                Text(text = task.created.format(pattern))
+                Text(
+                    text = task.created.format(NovelFormatter.dateTimeFormatter).replace(" ", "\n")
+                )
             }
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
                 Text(text = "任务最后更新时间")
-                Text(text = task.created.format(pattern))
+                Text(
+                    text = task.created.format(NovelFormatter.dateTimeFormatter).replace(" ", "\n")
+                )
             }
         }
-
-        actionContext()
     }
 }
 
