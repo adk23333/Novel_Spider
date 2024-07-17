@@ -27,6 +27,7 @@
 -dontwarn org.w3.**
 -dontwarn com.microsoft.schemas.**
 -dontwarn com.graphbuilder.**
+-dontwarn org.slf4j.impl.StaticLoggerBinder
 -dontnote org.apache.**
 -dontnote org.openxmlformats.schemas.**
 -dontnote org.etsi.**
