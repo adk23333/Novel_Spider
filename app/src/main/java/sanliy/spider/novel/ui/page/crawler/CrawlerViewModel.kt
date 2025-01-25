@@ -41,7 +41,7 @@ class CrawlerViewModel @Inject constructor(
     var threadCount by mutableIntStateOf(2)
 
     var export by mutableStateOf(false)
-    private val logSizeLimit = 10000
+    private val logSizeLimit = 1000
     var logSize by mutableIntStateOf(2)
     val logs = mutableStateListOf("准备开始...")
 
@@ -72,63 +72,66 @@ class CrawlerViewModel @Inject constructor(
             mPage = page
             page++
         }
-        if (mPage > task.endPage) return true
-        return runCatching {
-            novelRepository.getNovels(mPage, task)
-        }.fold(
-            onSuccess = {
-                if (it.data.isEmpty()) {
-                    true
-                } else {
-                    val novels = it.data.map { novel ->
-                        val sfacgNovel = SfacgNovelImpl(
-                            novel.novelId.toString(),
-                            task.taskID!!,
-                            NovelPlatform.SFACG,
-                            novel.novelName,
-                            novel.expand.intro,
-                            novel.authorId.toString(),
-                            novel.authorName,
-                            novel.expand.sysTags.map { sysTag ->
-                                TagImpl(
-                                    sysTag.sysTagId.toString(),
-                                    NovelPlatform.SFACG,
-                                    sysTag.tagName
-                                )
-                            },
-                            LocalDateTime.parse(novel.lastUpdateTime),
-                            novel.markCount,
-                            novel.novelCover,
-                            novel.bgBanner,
-                            novel.point,
-                            novel.isFinish,
-                            novel.charCount,
-                            novel.viewTimes,
-                            novel.allowDown,
-                            LocalDateTime.parse(novel.addTime),
-                            novel.isSensitive,
-                            novel.signStatus,
-                            getGenre(novel.expand.typeName) ?: GenreImpl.DefaultSFACG,
-                            novel.categoryId
-                        )
-                        mutex.withLock {
-                            if (logs.size > logSizeLimit) {
-                                logs.removeFirst()
+        if ((task.endPage == 0) or (mPage < task.endPage)) {
+            return runCatching {
+                novelRepository.getNovels(mPage, task)
+            }.fold(
+                onSuccess = {
+                    if (it.data.isEmpty()) {
+                        true
+                    } else {
+                        val novels = it.data.map { novel ->
+                            val sfacgNovel = SfacgNovelImpl(
+                                novel.novelId.toString(),
+                                task.taskID!!,
+                                NovelPlatform.SFACG,
+                                novel.novelName,
+                                novel.expand.intro,
+                                novel.authorId.toString(),
+                                novel.authorName,
+                                novel.expand.sysTags.map { sysTag ->
+                                    TagImpl(
+                                        sysTag.sysTagId.toString(),
+                                        NovelPlatform.SFACG,
+                                        sysTag.tagName
+                                    )
+                                },
+                                LocalDateTime.parse(novel.lastUpdateTime),
+                                novel.markCount,
+                                novel.novelCover,
+                                novel.bgBanner,
+                                novel.point,
+                                novel.isFinish,
+                                novel.charCount,
+                                novel.viewTimes,
+                                novel.allowDown,
+                                LocalDateTime.parse(novel.addTime),
+                                novel.isSensitive,
+                                novel.signStatus,
+                                getGenre(novel.expand.typeName) ?: GenreImpl.DefaultSFACG,
+                                novel.categoryId
+                            )
+                            mutex.withLock {
+                                if (logs.size > logSizeLimit) {
+                                    logs.removeFirst()
+                                }
+                                logs.add("《${novel.novelName}》—— ${novel.authorName}")
+                                logSize++
                             }
-                            logs.add("《${novel.novelName}》—— ${novel.authorName}")
-                            logSize++
+                            sfacgNovel
                         }
-                        sfacgNovel
+                        novelRepository.insertSfacg(*novels.toTypedArray())
+                        false
                     }
-                    novelRepository.insertSfacg(*novels.toTypedArray())
-                    false
+                },
+                onFailure = {
+                    Log.d(this@CrawlerViewModel::class.simpleName, it.toString())
+                    null
                 }
-            },
-            onFailure = {
-                Log.d(this@CrawlerViewModel::class.simpleName, it.toString())
-                null
-            }
-        )
+            )
+        } else {
+            return true
+        }
     }
 
     fun getTask(taskID: Long): Flow<SfacgNovelListTaskImpl> {
@@ -154,3 +157,4 @@ class CrawlerViewModel @Inject constructor(
         return genreRepository.getSfacgGenreByName(name)
     }
 }
+
